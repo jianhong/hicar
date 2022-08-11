@@ -39,7 +39,7 @@ workflow COOLER {
     // create a balanced matrix for compartment and tad calls
     COOLER_BALANCE(COOLER_MERGE.out.cool)
     // create mcooler file for visualization
-    COOLER_ZOOMIFY(COOLER_MERGE.out.cool)
+    COOLER_ZOOMIFY(COOLER_BALANCE.out.cool)
     // dump long.intra.bedpe for each group for MAPS to call peaks
     COOLER_DUMP_PER_GROUP(COOLER_MERGE.out.cool, []).bedpe | DUMPINTRAREADS_PER_GROUP
     if(juicer_tools_jar){

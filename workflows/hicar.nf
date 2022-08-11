@@ -246,7 +246,7 @@ workflow HICAR {
     //
     if(!params.skip_compartments){
         COOLTOOLS_COMPARTMENTS(
-            COOLER.out.cool,
+            COOLER.out.mcool,
             params.res_compartments,
             PREPARE_GENOME.out.fasta,
             PREPARE_GENOME.out.chrom_sizes
@@ -294,11 +294,13 @@ workflow HICAR {
     //
     // hicAggregateContacts
     //
+    if(!params.skip_apa){
     HICEXPLORER_HICAGGREGATECONTACTS(
         COOLER.out.cool,
         ATAC_PEAK.out.mergedpeak
     )
     ch_versions = ch_versions.mix(HICEXPLORER_HICAGGREGATECONTACTS.out.versions.ifEmpty(null))
+    }
 
     //
     // calling distal peaks: [ meta, bin_size, path(macs2), path(long_bedpe), path(short_bed), path(background) ]
