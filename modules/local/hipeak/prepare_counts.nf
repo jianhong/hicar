@@ -46,6 +46,7 @@ process PREPARE_COUNTS {
     ## make_option(c("-o", "--output"), type="character", default="counts.csv", help="output folder", metavar="string")
     ## make_option(c("-f", "--fasta"), type="character", default=NULL, help="genome fasta file", metavar="string")
     ## make_option(c("-1", "--chrom1"), type="character", default=NULL, help="chromosome1", metavar="string")
+    ## make_option(c("-n", "--counts_filter"), type="interger", default=0, help="minimal counts number of interaction", metavar="integer")
     parse_args <- function(options, args){
         out <- lapply(options, function(.ele){
             if(any(.ele[-3] %in% args)){
@@ -61,18 +62,23 @@ process PREPARE_COUNTS {
         })
     }
     option_list <- list("peak_pair_block"=c("--peak_pair_block", "-b", "integer"),
-                        "snow_type"=c("--snow_type", "-t", "character"))
+                        "snow_type"=c("--snow_type", "-t", "character"),
+                        "counts_filter"=c("--counts_filter", "-n", "integer"))
     opt <- parse_args(option_list, strsplit("$args", "\\\\s+")[[1]])
     CHROM1 <- "$chrom1"
     OUTPUT <- "counts.${meta.id}.${chrom1}.rds"
     NCORE <- as.numeric("$task.cpus")
     SNOW_TYPE <- "SOCK"
+    COUNTS_FILTER <- 0
     peak_pair_block <- 1e9
     if(!is.null(opt\$peak_pair_block)){
         peak_pair_block <- opt\$peak_pair_block
     }
     if(!is.null(opt\$snow_type)){
         SNOW_TYPE <- opt\$snow_type
+    }
+    if(!is.null(opt\$counts_filter)){
+        COUNTS_FILTER <- opt\$counts_filter
     }
     pattern <- "h5" ## h5 is postfix of output of pairtools pairs2hdf5
     pairs <- dir("pairs", paste0(pattern, "\$"), full.names=TRUE)
@@ -89,6 +95,7 @@ process PREPARE_COUNTS {
     chromosomes <- intersect(names(R1PEAK), names(R2PEAK))
     chromosomes <- chromosomes[!grepl("_", chromosomes)]
     chromosomes <- chromosomes[!grepl("M", chromosomes)] ## remove chrM/chrMT
+    chromosomes <- chromosomes[!grepl("EBV", chromosomes)]
     if(length(chromosomes)==0){
         stop("no valid data in same chromosome.")
     }
@@ -159,7 +166,7 @@ process PREPARE_COUNTS {
                     .dist[is.na(.dist)] <- 3e9
                     S4Vectors::mcols(.gi)[, "count"] <- InteractionSet::countOverlaps(.gi, reads, use.region="both")
                     S4Vectors::mcols(.gi)[, "shortCount"] <- GenomicRanges::countOverlaps(S4Vectors::second(.gi), S4Vectors::second(reads))
-                    .gi[S4Vectors::mcols(.gi)[, "count"]>0 & S4Vectors::mcols(.gi)[, "shortCount"]>0 & .dist>1000]
+                    .gi[S4Vectors::mcols(.gi)[, "count"]>COUNTS_FILTER & S4Vectors::mcols(.gi)[, "shortCount"]>COUNTS_FILTER & .dist>1000]
                 }
                 countFUNbyPairs <- function(r1peak, r2peak, peak_pairs, reads, parallel){
                     peak_pairs_group <- ceiling(nrow(peak_pairs)/peak_pair_block)
