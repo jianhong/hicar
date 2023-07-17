@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)./usage -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>jianhong/hicar » nf-core</title>
+  <meta name="description" content="This pipeline analyses data for HiCAR data, a robust and sensitive multi-omic co-assay for simultaneous measurement of transcriptome, chromatin accessibility and cis-regulatory chromatin contacts.">
+  <meta name="author" content="Phil Ewels">
+  <meta name="color-scheme" content="light dark">
+  <link rel="shortcut icon" href="./assets/img/logo/nf-core-logo-square.png" type="image/png">
+  <link rel="alternate" type="application/rss+xml" title="nf-core: Events" href="./events/rss">
+  <!-- FontAwesome -->
+  <script type="text/javascript" async="" src="./assets/analytics.js"></script><script type="text/javascript" async="" src="./assets/js"></script><script src="./assets/471b59d3f8.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async="" src="./assets/js(1)"></script>
+  <!-- Other JS -->
+  <script src="./assets/jquery.min.js"></script>
+  <script src="./assets/bootstrap.bundle.min.js"></script>
+  <script src="./assets/highlight.min.js"></script>
+  <script src="./assets/groovy.min.js"></script>
+  <!-- Page-specific CSS and JS -->
+      <script src="./assets/moment.js"></script>
+    <script src="./assets/Chart.min.js"></script>
+    <link href="./assets/Chart.min.css" rel="stylesheet">
+    <script src="./assets/hammer.min.js"></script>
+    <script src="./assets/chartjs-plugin-zoom.min.js"></script>
+    <!-- NO CURRENT VERSION ON NPM --> <script src="./assets/canvas2svg.js"></script><!-- NO CURRENT VERSION ON NPM -->
+    <script src="./assets/FileSaver.min.js"></script>
+    <script src="./assets/jquery.tablesorter.min.js"></script>
+
+  <!-- Custom nf-core CSS and JS -->
+  <link href="./assets/nf-core-light.css" rel="stylesheet" id="theme-stylesheet">
+  <script src="./assets/nf-core.js"></script>
+  <script>
+  $(document).ready(function(){
+      $("#header").load("header.html");
+      $("#footer").load("footer.html");
+  });
+  </script>
+</head>
+
+<body tabindex="0">
+    <div class="mainpage">
+      <header id="header"></header>
+
+<div class="container-xxl main-content">
+
+  <ul class="nav nav-fill nfcore-subnav justify-content-around d-print-none">
+    <li class="nav-item">
+      <a class="nav-link" href="./index.html"><i class="fas fa-sign-in me-1"></i> Introduction</a>
+    </li>
+        <li class="nav-item">
+      <a class="nav-link active" href="./usage.html"><i class="far fa-book me-1"></i> Usage docs</a>
+    </li>
+          <li class="nav-item">
+        <a class="nav-link" href="./parameters.html"><i class="far fa-book me-1"></i> Parameter docs</a>
+      </li>
+        <li class="nav-item">
+      <a class="nav-link" href="./output.html"><i class="far fa-book me-1"></i> Output docs</a>
+    </li>
+  </ul>
+
+  <div class="row flex-wrap-reverse flex-lg-wrap ms-lg-5"><div class="col-12 col-lg-9"><div class="rendered-markdown pipeline-page-content"><h1 id="introduction" class="">Introduction<a href="./usage.html#introduction" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h1>
+<p>HiC on Accessible Regulatory DNA (HiCAR) is a feasible tool to study the long-range interactions
+of the cis- and trans-regulatory elements (cREs/TREs) especially for the low input
+samples and the samples with no available antibodies. To facilitate the analysis of HiCAR
+data, the Nextflow platform based nf-core/hicar pipeline can detect the chromatin interaction
+in single nucleotide resolution within and among chromosomes.</p>
+<h2 id="samplesheet-input" class="">Samplesheet input<a href="./usage.html#samplesheet-input" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<p>You will need to create a samplesheet with information about the samples you would like to analzse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the examples below.</p>
+<pre><code class="language-bash hljs">--input <span class="hljs-string">'[path to samplesheet file]'</span></code></pre>
+<h3 id="multiple-runs-of-the-same-sample" class="">Multiple runs of the same sample<a href="./usage.html#multiple-runs-of-the-same-sample" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>The <code>sample</code> identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:</p>
+<pre><code class="language-console hljs language-shell">group,replicate,fastq_1,fastq_2
+CONTROL,1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+CONTROL,1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
+CONTROL,1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz</code></pre>
+<p>Please Note that the dots ('.') and space (' ') in the group names will be replaced by '_' to avoid the potential issues of python scripts. In the pipeline, the group names will be used as prefix of filenames. Many tools developed in python will consider the first dot as the sign of file extension and this will throw errors when the program does not expected the extra dots in the filenames. If you want to keep consistent of file naming system with the group names, please consider to replace all the dots and space in the samplesheet.</p>
+<h3 id="full-samplesheet" class="">Full samplesheet<a href="./usage.html#full-samplesheet" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>HiCAR requires paired-end sequencing. Both fastq_1 and fastq_2 must be provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 4 columns to match those defined in the table below.</p>
+<p>If md5_1/2 is provided, the pipeline will check the checksums.</p>
+<p>A final samplesheet file consisting of two groups of paired-end data may look something like the one below. This is for 6 samples, where <code>TREATMENT_REP3</code> has been sequenced twice.</p>
+<pre><code class="language-console hljs language-shell">group,replicate,fastq_1,fastq_2,md5_1,md5_2
+CONTROL,1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz,,
+CONTROL,2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz,,
+CONTROL,3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz,,
+TREATMENT,1,AEG588A4_S4_L003_R1_001.fastq.gz,AEG588A4_S4_L003_R2_001.fastq.gz,,
+TREATMENT,2,AEG588A5_S5_L003_R1_001.fastq.gz,AEG588A5_S5_L003_R2_001.fastq.gz,,
+TREATMENT,3,AEG588A6_S6_L003_R1_001.fastq.gz,AEG588A6_S6_L003_R2_001.fastq.gz,,
+TREATMENT,3,AEG588A6_S6_L004_R1_001.fastq.gz,AEG588A6_S6_L004_R2_001.fastq.gz,,</code></pre>
+<div class="table-responsive"><table class="table table-bordered table-striped table-sm small">
+<thead>
+<tr>
+<th>Column</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>group</code></td>
+<td>Custom group name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (<code>_</code>).</td>
+</tr>
+<tr>
+<td><code>replicate</code></td>
+<td>Biological replicates of the samples.</td>
+</tr>
+<tr>
+<td><code>fastq_1</code></td>
+<td>Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".</td>
+</tr>
+<tr>
+<td><code>fastq_2</code></td>
+<td>Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".</td>
+</tr>
+<tr>
+<td><code>md5_1</code></td>
+<td>Checksum for fastq_1. The checksums of the files will be check to make sure the file is not truncated if provided.</td>
+</tr>
+<tr>
+<td><code>md5_2</code></td>
+<td>Checksum for fastq_2. The checksums of the files will be check to make sure the file is not truncated if provided.</td>
+</tr>
+</tbody>
+</table></div>
+<p>An <a href="./assets/samplesheet.csv">example samplesheet</a> has been provided with the pipeline.</p>
+<h2 id="different-levels-of-3d-organization-of-chromatin" class="">Different levels of 3D organization of chromatin<a href="./usage.html#different-levels-of-3d-organization-of-chromatin" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<p><img src="./assets/chromatin_organization.png" alt="Schematic representation of the 3D arrangement of chromatin"></p>
+<h3 id="call-ab-compartments-and-tads" class="">Call A/B compartments and TADs<a href="./usage.html#call-ab-compartments-and-tads" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>On a large scale, the arrangement of chromosomes are organised into two compartments labelled A ("active") and B ("inactive").
+A/B compartment-associated regions are on the multi-Mb scale and correlate with either open and expression-active chromatin ("A" compartments) or closed and expression inactive chromatin ("B" compartments). A compartments tend to be gene-rich, have high GC-content, contain histone markers for active transcription, and usually displace the interior of the nucleus. The regions in compartment A tend to interact preferentially with A compartment-associated regions than B compartment-associated ones. B compartments, on the other hand, tend to be gene-poor, compact, contain histone markers for gene silencing, and lie on the nuclear periphery.</p>
+<p>A topologically associating domain (TAD) is a smaller size genomic region compare to A/B compartments. It is a self-interacting genomic region. Most of the studies indicate TADs regulate gene expression by limiting the enhancer-promoter interaction to each TAD. A number of proteins are known to be associated with TAD formation. The most studied proteins are the protein CTCF and the protein complex cohesin. It has been shown that the TAD boundaries have high levels of CTCF binding and cohesin/lamina shifting edges.</p>
+<p>There are multiple available modules to call A/B compartments and TADs.</p>
+<ul>
+<li>For A/B Compartments calling, available tools are 'cooltools', 'hicExplorer', 'Homer', and 'juicer_tools'.</li>
+<li>For TADs calling, available tools are 'cooltools', 'hicexplorer', and 'Homer'.</li>
+</ul>
+<p>Here is a short introduction about the tools:</p>
+<ul>
+<li>The <a href="https://github.com/open2c/cooltools"><code>cooltools</code></a> leverages <a href="https://github.com/open2c/cooler/tree/master/cooler"><code>cooler</code></a> format to enable flexible and reproducible analysis of high-resolution data. <code>insulation</code> tool will be used for TADs calling.</li>
+<li>The <a href="https://hicexplorer.readthedocs.io/en/latest/"><code>HiCExplorer</code></a> is a set of programs to process, normalize, analyze and visualize Hi-C and cHi-C data. The <a href="https://hicexplorer.readthedocs.io/en/latest/content/tools/hicFindTADs.html"><code>hicFindTADs</code></a> will be used to call TADs.</li>
+<li>The <a href="http://homer.ucsd.edu/homer/interactions2/HiCpca.html"><code>Homer</code></a> is a software for motif discovery and next-gen sequencing analysis.</li>
+<li>The <a href="https://github.com/aidenlab/juicer"><code>juicer_tools</code></a> is a platform for analyzing bin sized Hi-C data. The <a href="https://github.com/aidenlab/HiCTools">HiCTools</a> will be used to create .hic files, and call compartments. Please note that by default the normalization method for compartment calling was set as <code>SCALE</code>. You may want to try different parameters for the normalization method such as <code>KR</code>.</li>
+</ul>
+<h3 id="call-interactionsloops" class="">Call interactions/loops<a href="./usage.html#call-interactionsloops" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>Chromatin loops (or significant interactions), represent two inter/intra chromosome regions that interact at a high frequency with one another (high reads density in sequence data). Different from HiC, HiCAR data are biased with one ends or both ends in the open chromatin. The <a href="https://github.com/ijuric/MAPS"><code>MAPS</code></a> are designed to remove the this kind of biases introduced by the ChIP or Tn5-transposition procedure. However, many tools are hesitated to introduce this kind of model-based analysis for interaction analysis since high frequency interactions must happened within the highly opened chromatin regions. Here <code>nf-core/hicar</code> provide multiple choices for interactions calling. Available tools are 'MAPS', <a href="https://doi.org/10.1038/s41467-021-23749-x">'HiC-DC+'</a> and <a href="https://doi.org/10.1038/s41467-020-17239-9">'peakachu'</a>.</p>
+<p>In downstream, differential analysis available for called interactions. Available tools are Bioconductor packages such as <code>edgeR</code>, and <code>diffhic</code>, and <a href="https://hicexplorer.readthedocs.io/en/latest/"><code>HiCExplorer</code></a>. We borrowed capture Hi-C analysis pipeline from HiCExplorer to do the differential analysis. Different from <code>edgeR</code> and <code>diffhic</code> pipeline, HiCExplorer pipeline does not require the replicates. A simple differential analysis by set operation are also available.</p>
+<p>For annotation, we will use Bioconductor package <a href="https://bioconductor.org/packages/ChIPpeakAnno/"><code>ChIPpeakAnno</code></a>. Please note that, the involved genes are not only distance based annotation. The most of the interaction calling tools are bin-based caller, and the bin size are kilo-base or even more, which make the annotation difficult. For HiCAR data, the R2 reads are Tn5 insertion site of the open chromatin. And most of the R2 reads will be an anchor of annotion for the gene promoters. We will annotate the interactions by the annotation of called ATAC (R2) peaks located within the interaction regions.</p>
+<h3 id="call-high-resolution-interactions" class="">Call high resolution interactions<a href="./usage.html#call-high-resolution-interactions" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>The high resolution interaction caller is also available for confident transcription factor enrichment analysis. However, please note that the high resolution interaction caller are not bin-based but peak based analysis, which uses high computational resources.</p>
+<h3 id="aggregate-peak-analysis" class="">Aggregate peak analysis<a href="./usage.html#aggregate-peak-analysis" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>Aggregate peak analysis (APA) plots the pileup signals detected by high-resolution interaction data. It is a kind of 2 dimension meta-gene analysis. By providing a list of interested genomic coordinates, the pileup signal will present the enrichment between the interactions and the target interested region. Current available tools for APA are <a href="https://github.com/open2c/cooltools"><code>cooltools</code></a>, <a href="https://hicexplorer.readthedocs.io/en/latest/"><code>HiCExplorer</code></a> and <a href="https://github.com/aidenlab/juicertools">JuicerTools</a>.</p>
+<h3 id="virtual-4c" class="">Virtual 4C<a href="./usage.html#virtual-4c" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>Circularized Chromosome Conformation Capture (4C) is a powerful technique for studying the interactions of a specific genomic region with the rest of the genome.
+Visualize Hi-C data in a virtual 4C (v4c) format can help user to zoom in the interactions within a specific viewpoint. Current available tools for v4c are <a href="https://github.com/open2c/cooltools"><code>cooltools</code></a>, <a href="https://hicexplorer.readthedocs.io/en/latest/"><code>HiCExplorer</code></a> and <a href="https://doi.org/10.1038/s41592-019-0430-y"><code>trackViewer</code></a>.</p>
+<h3 id="available-tools" class="">Available tools<a href="./usage.html#available-tools" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<div class="table-responsive"><table class="table table-bordered table-striped table-sm small">
+<thead>
+<tr>
+<th style="text-align: left;">Tools</th>
+<th style="text-align: left;">as paramerter</th>
+<th style="text-align: left;">A/B compartments</th>
+<th style="text-align: left;">TADs</th>
+<th style="text-align: left;">Interactions</th>
+<th style="text-align: left;">Differential analysis</th>
+<th style="text-align: left;">APA</th>
+<th style="text-align: left;">V4C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">cooltools</td>
+<td style="text-align: left;">cooltools</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☑</td>
+</tr>
+<tr>
+<td style="text-align: left;">diffhic</td>
+<td style="text-align: left;">diffhic</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+</tr>
+<tr>
+<td style="text-align: left;">edgeR</td>
+<td style="text-align: left;">edger</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+</tr>
+<tr>
+<td style="text-align: left;">HiC-DC+</td>
+<td style="text-align: left;">hicdcplus</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+</tr>
+<tr>
+<td style="text-align: left;">hicExplorer</td>
+<td style="text-align: left;">hicexplorer</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☑</td>
+</tr>
+<tr>
+<td style="text-align: left;">homer</td>
+<td style="text-align: left;">homer</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+</tr>
+<tr>
+<td style="text-align: left;">MAPS</td>
+<td style="text-align: left;">maps</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+</tr>
+<tr>
+<td style="text-align: left;">juicer_tools</td>
+<td style="text-align: left;">juicebox</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☐</td>
+</tr>
+<tr>
+<td style="text-align: left;">peakachu</td>
+<td style="text-align: left;">peakachu</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+</tr>
+<tr>
+<td style="text-align: left;">setOperation</td>
+<td style="text-align: left;">setOperation</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☑</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+</tr>
+<tr>
+<td style="text-align: left;">trackViewer</td>
+<td style="text-align: left;">trackviewer</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☐</td>
+<td style="text-align: left;">☑</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="running-the-pipeline" class="">Running the pipeline<a href="./usage.html#running-the-pipeline" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<p>The typical command for running the pipeline is as follows:</p>
+<pre><code class="language-bash hljs">nextflow run nf-core/hicar --input samplesheet.csv --outdir &lt;OUTDIR&gt; --genome GRCh37 -profile docker</code></pre>
+<p>This will launch the pipeline with the <code>docker</code> configuration profile. See below for more information about profiles.</p>
+<p>Note that the pipeline will create the following files in your working directory:</p>
+<pre><code class="language-bash hljs">work                <span class="hljs-comment"># Directory containing the nextflow working files</span>
+&lt;OUTDIR&gt;            <span class="hljs-comment"># Finished results in specified location (defined with --outdir)</span>
+.nextflow_log       <span class="hljs-comment"># Log file from Nextflow</span>
+<span class="hljs-comment"># Other nextflow hidden files, eg. history of pipeline runs and old logs.</span></code></pre>
+<p>If you wish to repeatedly use the same parameters for multiple runs, rather than specifying each flag in the command, you can specify these in a params file.</p>
+<p>Pipeline settings can be provided in a <code>yaml</code> or <code>json</code> file via <code>-params-file &lt;file&gt;</code>.</p>
+<blockquote>
+<p>⚠️ Do not use <code>-c &lt;file&gt;</code> to specify parameters as this will result in errors. Custom config files specified with <code>-c</code> must only be used for <a href="https://nf-co.re/docs/usage/configuration#tuning-workflow-resources">tuning process resource specifications</a>, other infrastructural tweaks (such as output directories), or module arguments (args).
+The above pipeline run specified with a params file in yaml format:</p>
+</blockquote>
+<pre><code class="language-bash hljs">nextflow run nf-core/hicar -profile docker -params-file params.yaml</code></pre>
+<p>with <code>params.yaml</code> containing:</p>
+<pre><code class="language-yaml hljs"><span class="hljs-attr">input:</span> <span class="hljs-string">'./samplesheet.csv'</span>
+<span class="hljs-attr">outdir:</span> <span class="hljs-string">'./results/'</span>
+<span class="hljs-attr">genome:</span> <span class="hljs-string">'GRCh37'</span>
+<span class="hljs-attr">input:</span> <span class="hljs-string">'data'</span>
+<span class="hljs-string">&lt;...&gt;</span></code></pre>
+<p>You can also generate such <code>YAML</code>/<code>JSON</code> files via <a href="https://nf-co.re/launch">nf-core/launch</a>.</p>
+<h3 id="updating-the-pipeline" class="">Updating the pipeline<a href="./usage.html#updating-the-pipeline" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>When you run the above command, Nextflow automatically pulls the pipeline code from GitHub and stores it as a cached version. When running the pipeline after this, it will always use the cached version if available - even if the pipeline has been updated since. To make sure that you're running the latest version of the pipeline, make sure that you regularly update the cached version of the pipeline:</p>
+<pre><code class="language-bash hljs">nextflow pull nf-core/hicar</code></pre>
+<h3 id="reproducibility" class="">Reproducibility<a href="./usage.html#reproducibility" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>It is a good idea to specify a pipeline version when running the pipeline on your data. This ensures that a specific version of the pipeline code and software are used when you run your pipeline. If you keep using the same tag, you'll be running the same version of the pipeline, even if there have been changes to the code since.</p>
+<p>First, go to the <a href="https://github.com/nf-core/hicar/releases">nf-core/hicar releases page</a> and find the latest pipeline version - numeric only (eg. <code>1.3.1</code>). Then specify this when running the pipeline with <code>-r</code> (one hyphen) - eg. <code>-r 1.3.1</code>. Of course, you can switch to another version by changing the number after the <code>-r</code> flag.</p>
+<p>This version number will be logged in reports when you run the pipeline, so that you'll know what you used when you look back in the future. For example, at the bottom of the MultiQC reports.</p>
+<p>To further assist in reproducbility, you can use share and re-use <a href="./usage.html#running-the-pipeline">parameter files</a> to repeat pipeline runs with the same settings without having to write out a command with every single parameter.</p>
+<blockquote>
+<p>💡 If you wish to share such profile (such as upload as supplementary material for academic publications), make sure to NOT include cluster specific paths to files, nor institutional specific profiles.</p>
+</blockquote>
+<h2 id="core-nextflow-arguments" class="">Core Nextflow arguments<a href="./usage.html#core-nextflow-arguments" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<blockquote>
+<p><strong>NB:</strong> These options are part of Nextflow and use a <em>single</em> hyphen (pipeline parameters use a double-hyphen).</p>
+</blockquote>
+<h3 id="profile" class=""><code>-profile</code><a href="./usage.html#profile" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>Use this parameter to choose a configuration profile. Profiles can give configuration presets for different compute environments.</p>
+<p>Several generic profiles are bundled with the pipeline which instruct the pipeline to use software packaged using different methods (Docker, Singularity, Podman, Shifter, Charliecloud, Apptainer, Conda) - see below.</p>
+<blockquote>
+<p>We highly recommend the use of Docker or Singularity containers for full pipeline reproducibility, however when this is not possible, Conda is also supported.</p>
+</blockquote>
+<p>The pipeline also dynamically loads configurations from <a href="https://github.com/nf-core/configs">https://github.com/nf-core/configs</a> when it runs, making multiple config profiles for various institutional clusters available at run time. For more information and to see if your system is available in these configs please see the <a href="https://github.com/nf-core/configs#documentation">nf-core/configs documentation</a>.</p>
+<p>Note that multiple profiles can be loaded, for example: <code>-profile test,docker</code> - the order of arguments is important!
+They are loaded in sequence, so later profiles can overwrite earlier profiles.</p>
+<p>If <code>-profile</code> is not specified, the pipeline will run locally and expect all software to be installed and available on the <code>PATH</code>. This is <em>not</em> recommended, since it can lead to different results on different machines dependent on the computer enviroment.</p>
+<ul>
+<li><code>test</code><ul>
+<li>A profile with a complete configuration for automated testing</li>
+<li>Includes links to test data so needs no other parameters</li>
+</ul>
+</li>
+<li><code>docker</code><ul>
+<li>A generic configuration profile to be used with <a href="https://docker.com/">Docker</a></li>
+</ul>
+</li>
+<li><code>singularity</code><ul>
+<li>A generic configuration profile to be used with <a href="https://sylabs.io/docs/">Singularity</a></li>
+</ul>
+</li>
+<li><code>podman</code><ul>
+<li>A generic configuration profile to be used with <a href="https://podman.io/">Podman</a></li>
+</ul>
+</li>
+<li><code>shifter</code><ul>
+<li>A generic configuration profile to be used with <a href="https://nersc.gitlab.io/development/shifter/how-to-use/">Shifter</a></li>
+</ul>
+</li>
+<li><code>charliecloud</code><ul>
+<li>A generic configuration profile to be used with <a href="https://hpc.github.io/charliecloud/">Charliecloud</a></li>
+</ul>
+</li>
+<li><code>apptainer</code><ul>
+<li>A generic configuration profile to be used with <a href="https://apptainer.org/">Apptainer</a></li>
+</ul>
+</li>
+<li><code>conda</code><ul>
+<li>A generic configuration profile to be used with <a href="https://conda.io/docs/">Conda</a>. Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker, Singularity, Podman, Shifter, Charliecloud, or Apptainer.</li>
+</ul>
+</li>
+</ul>
+<h3 id="resume" class=""><code>-resume</code><a href="./usage.html#resume" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>Specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files' contents as well. For more info about this parameter, see <a href="https://www.nextflow.io/blog/2019/demystifying-nextflow-resume.html">this blog post</a>.</p>
+<p>You can also supply a run name to resume a specific run: <code>-resume [run-name]</code>. Use the <code>nextflow log</code> command to show previous run names.</p>
+<h3 id="c" class=""><code>-c</code><a href="./usage.html#c" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>Specify the path to a specific config file (this is a core Nextflow command). See the <a href="https://nf-co.re/usage/configuration">nf-core website documentation</a> for more information.</p>
+<h2 id="custom-configuration" class="">Custom configuration<a href="./usage.html#custom-configuration" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<h3 id="resource-requests" class="">Resource requests<a href="./usage.html#resource-requests" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>Whilst the default requirements set within the pipeline will hopefully work for most people and with most input data, you may find that you want to customise the compute resources that the pipeline requests. Each step in the pipeline has a default set of requirements for number of CPUs, memory and time. For most of the steps in the pipeline, if the job exits with any of the error codes specified <a href="https://github.com/nf-core/rnaseq/blob/4c27ef5610c87db00c3c5a3eed10b1d161abf575/conf/base.config#L18">here</a> it will automatically be resubmitted with higher requests (2 x original, then 3 x original). If it still fails after the third attempt then the pipeline execution is stopped.</p>
+<p>To change the resource requests, please see the <a href="https://nf-co.re/docs/usage/configuration#max-resources">max resources</a> and <a href="https://nf-co.re/docs/usage/configuration#tuning-workflow-resources">tuning workflow resources</a> section of the nf-core website.</p>
+<h3 id="custom-containers" class="">Custom Containers<a href="./usage.html#custom-containers" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>In some cases you may wish to change which container or conda environment a step of the pipeline uses for a particular tool. By default nf-core pipelines use containers and software from the <a href="https://biocontainers.pro/">biocontainers</a> or <a href="https://bioconda.github.io/">bioconda</a> projects. However in some cases the pipeline specified version maybe out of date.</p>
+<p>To use a different container from the default container or conda environment specified in a pipeline, please see the <a href="https://nf-co.re/docs/usage/configuration#updating-tool-versions">updating tool versions</a> section of the nf-core website.</p>
+<h3 id="custom-tool-arguments" class="">Custom Tool Arguments<a href="./usage.html#custom-tool-arguments" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>A pipeline might not always support every possible argument or option of a particular tool used in pipeline. Fortunately, nf-core pipelines provide some freedom to users to insert additional parameters that the pipeline does not include by default.</p>
+<p>To learn how to provide additional arguments to a particular tool of the pipeline, please see the <a href="https://nf-co.re/docs/usage/configuration#customising-tool-arguments">customising tool arguments</a> section of the nf-core website.</p>
+<h3 id="nf-coreconfigs" class="">nf-core/configs<a href="./usage.html#nf-coreconfigs" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>In most cases, you will only need to create a custom config as a one-off but if you and others within your organisation are likely to be running nf-core pipelines regularly and need to use the same settings regularly it may be a good idea to request that your custom config file is uploaded to the <code>nf-core/configs</code> git repository. Before you do this please can you test that the config file works with your pipeline of choice using the <code>-c</code> parameter. You can then create a pull request to the <code>nf-core/configs</code> repository with the addition of your config file, associated documentation file (see examples in <a href="https://github.com/nf-core/configs/tree/master/docs"><code>nf-core/configs/docs</code></a>), and amending <a href="https://github.com/nf-core/configs/blob/master/nfcore_custom.config"><code>nfcore_custom.config</code></a> to include your custom profile.</p>
+<p>See the main <a href="https://www.nextflow.io/docs/latest/config.html">Nextflow documentation</a> for more information about creating your own configuration files.</p>
+<p>If you have any questions or issues please send us a message on <a href="https://nf-co.re/join/slack">Slack</a> on the <a href="https://nfcore.slack.com/channels/configs"><code>#configs</code> channel</a>.</p>
+<h2 id="azure-resource-requests" class="">Azure Resource Requests<a href="./usage.html#azure-resource-requests" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<p>To be used with the <code>azurebatch</code> profile by specifying the <code>-profile azurebatch</code>.
+We recommend providing a compute <code>params.vm_type</code> of <code>Standard_D16_v3</code> VMs by default but these options can be changed if required.</p>
+<p>Note that the choice of VM size depends on your quota and the overall workload during the analysis.
+For a thorough list, please refer the <a href="https://docs.microsoft.com/en-us/azure/virtual-machines/sizes">Azure Sizes for virtual machines in Azure</a>.</p>
+<h2 id="running-in-the-background" class="">Running in the background<a href="./usage.html#running-in-the-background" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<p>Nextflow handles job submissions and supervises the running jobs. The Nextflow process must run until the pipeline is finished.</p>
+<p>The Nextflow <code>-bg</code> flag launches Nextflow in the background, detached from your terminal so that the workflow does not stop if you log out of your session. The logs are saved to a file.</p>
+<p>Alternatively, you can use <code>screen</code> / <code>tmux</code> or similar tool to create a detached session which you can log back into at a later time.
+Some HPC setups also allow you to run nextflow within a cluster job submitted your job scheduler (from where it submits more jobs).</p>
+<h2 id="nextflow-memory-requirements" class="">Nextflow memory requirements<a href="./usage.html#nextflow-memory-requirements" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<p>In some cases, the Nextflow Java virtual machines can start to request a large amount of memory.
+We recommend adding the following line to your environment to limit this (typically in <code>~/.bashrc</code> or <code>~./bash_profile</code>):</p>
+<pre><code class="language-bash hljs">NXF_OPTS=<span class="hljs-string">'-Xms1g -Xmx4g'</span></code></pre>
+<h2 id="troubleshooting" class="">Troubleshooting<a href="./usage.html#troubleshooting" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<ul>
+<li>Error: <code>The exit status of the task that caused the workflow execution to fail was: null.</code></li>
+</ul>
+<p>Check the files are readable for the workflow.</p>
+<ul>
+<li>Error: <code>Session aborted -- Cause: Unable to execute HTTP request: ngi-igenomes.s3.amazonaws.com</code></li>
+</ul>
+<p>The internet connection reached the limitation. Try to resume the analysis one hour later.</p>
+<ul>
+<li>Error: <code>PaddingError: Placeholder of length '80' too short in package</code></li>
+</ul>
+<p>There is no easy answer here. The new <code>conda</code> packages should having a longer prefix (255 characters).
+The possible solution now is that try to run the pipeline in a shorter folder path, if at all possible.</p>
+<ul>
+<li>Error: <code>Not a conda environment</code> or <code>command not found</code></li>
+</ul>
+<p>There is something going wrong with the conda environment building.
+Just try to remove the conda environment folder and resume the run.</p>
+<ul>
+<li>Error: <code>unable to load shared object 'work/conda/env-xxxxxx/lib/R/library/rtracklayer/libs/rtracklayer.dylib', dlopen(rtracklayer.dylib, 6) Library not loaded: @rpath/libssl.1.1.dylib</code></li>
+</ul>
+<p>The openssl installation have issues for <code>conda</code>. Try to reinstall it by
+<code>conda activate work/conda/env-xxxxxx &amp;&amp; conda install --force-reinstall -y openssl</code></p>
+<ul>
+<li>Error: <code>error Can't locate Statistics/Basic.pm</code></li>
+</ul>
+<p>The perl-statistics-basic installed in wrong location. Try to reinstall it by
+<code>conda activate work/conda/env-xxxxx &amp;&amp; perl -MCPAN -e 'CPAN::install(Statistics::Basic)'</code></p>
+<ul>
+<li><code>Error in result[[njob]] &lt;- value : attempt to select less than one element in OneIndex</code></li>
+</ul>
+<p>The error may caused by out of memory (although the error message seems to be unrelated to memory). Try to set <code><span class="text-nowrap">--peak_pair_block</span></code> to a smaller number less than 1e9.</p>
+<ul>
+<li><code>[CRITICAL] The sample sheet **must** contain these column headers: replicate, group, fastq_2, fastq_1.</code></li>
+</ul>
+<p>The error may caused by the improper formtated <code>.csv</code> file (the file contain header info before the column names) by <code>Microsoft Excel</code>. Please use a text editor to reprepare the <code>.csv</code> sample files.</p>
+<ul>
+<li><code>.command.sh: line 2: gtf2bed: command not found</code> or <code>.command.sh: line 1: check_samplesheet.py: command not found</code>.</li>
+</ul>
+<p>When you are using container and your nextflow home folder is a symlink, the bin folder in the source code will be not available in the container.</p>
+<h3 id="known-issue-with-juicer_tools" class="">Known issue with Juicer_tools<a href="./usage.html#known-issue-with-juicer_tools" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>If you are using <a href="https://github.com/aidenlab/juicer/wiki/">Juicer_tools</a> with GPU supported, it is not supported by the containers. We are using <a href="https://github.com/aidenlab/juicer/wiki/Pre">Juicer Tools Pre</a> to create the <a href="https://doi.org/10.1016/j.cels.2016.07.002">hic files</a> from aligned HiCAR reads.
+We recommend having at least 4GB free RAM to generate the hic files.</p>
+<h3 id="tips-for-hpc-users" class="">Tips for HPC Users<a href="./usage.html#tips-for-hpc-users" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<p>When using an HPC system you should specify the executor matching your system. Check <a href="https://www.nextflow.io/docs/latest/executor.html">available executors</a> to use the correct executor and parameters.
+This instructs Nextflow to submit pipeline tasks as jobs into your HPC workload manager.
+Take SLURM workload manager system as an example for the minimal test, this can be done adding the following lines to the <code>nextflow.config</code>.</p>
+<pre><code class="language-groovy hljs">process.executor = <span class="hljs-string">'slurm'</span> <span class="hljs-comment">// the workload manager name</span>
+executor {<span class="hljs-comment">// the job queue size</span>
+    name = <span class="hljs-string">'slurm'</span>
+    queueSize = <span class="hljs-number">10</span>
+}
+process.clusterOptions = <span class="hljs-string">"-J nextFlowHiCAR -p scavenger"</span> <span class="hljs-comment">// the options, here -p request a specific partition for the resource allocation. It will be different in your cluster.</span></code></pre>
+<h3 id="useful-resources" class="">Useful resources<a href="./usage.html#useful-resources" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<ul>
+<li>
+<p><a href="https://nf-co.re/usage/configuration">Nextflow pipeline configuration</a></p>
+</li>
+<li>
+<p><a href="https://nf-co.re/docs/usage/troubleshooting">Troubleshooting documentation</a></p>
+</li>
+</ul></div></div><div class="col-12 col-lg-3 ps-2"><div class="side-sub-subnav sticky-top"><nav class="toc pt-2 auto-toc border-start d-print-none"><strong class="ms-3 d-inline-block w-100 text-secondary border-bottom">On this page</strong>
+<nav class="nav flex-column flex-nowrap">
+<a class="nav-link scroll_to_link py-1" href="./usage.html#introduction">Introduction</a>
+<nav class="nav flex-column flex-nowrap">
+<a class="nav-link scroll_to_link py-1" href="./usage.html#samplesheet-input">Samplesheet input</a>
+<nav class="nav flex-column flex-nowrap">
+<a class="nav-link scroll_to_link py-1" href="./usage.html#multiple-runs-of-the-same-sample">Multiple runs of the same sample</a>
+<a class="nav-link scroll_to_link py-1" href="./usage.html#full-samplesheet">Full samplesheet</a>
+</nav>
+
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#different-levels-of-3d-organization-of-chromatin">Different levels of 3D organization of chromatin</a>
+<nav class="nav flex-column flex-nowrap">
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#call-ab-compartments-and-tads">Call A/B compartments and TADs</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#call-interactionsloops">Call interactions/loops</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#call-high-resolution-interactions">Call high resolution interactions</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#aggregate-peak-analysis">Aggregate peak analysis</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#virtual-4c">Virtual 4C</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#available-tools">Available tools</a>
+</nav>
+
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#running-the-pipeline">Running the pipeline</a>
+<nav class="nav flex-column flex-nowrap">
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#updating-the-pipeline">Updating the pipeline</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#reproducibility">Reproducibility</a>
+</nav>
+
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#core-nextflow-arguments">Core Nextflow arguments</a>
+<nav class="nav flex-column flex-nowrap">
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#profile"><code>-profile</code></a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#resume"><code>-resume</code></a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#c"><code>-c</code></a>
+</nav>
+
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#custom-configuration">Custom configuration</a>
+<nav class="nav flex-column flex-nowrap">
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#resource-requests">Resource requests</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#custom-containers">Custom Containers</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#custom-tool-arguments">Custom Tool Arguments</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#nf-coreconfigs">nf-core/configs</a>
+</nav>
+
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#azure-resource-requests">Azure Resource Requests</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#running-in-the-background">Running in the background</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#nextflow-memory-requirements">Nextflow memory requirements</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#troubleshooting">Troubleshooting</a>
+<nav class="nav flex-column flex-nowrap">
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#known-issue-with-juicer_tools">Known issue with Juicer_tools</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#tips-for-hpc-users">Tips for HPC Users</a>
+<a class="nav-link scroll_to_link py-1 " href="./usage.html#useful-resources">Useful resources</a></nav></nav></nav><p class="small text-end mt-3"><a href="./usage.html#" class="text-muted"><i class="fas fa-arrow-to-top"></i> Back to top</a></p></nav></div></div></div></div></div><footer class="subfooter"><div class="container"><p class="mb-0"><i class="fab fa-github"></i> Read this page on GitHub: <code><a href="https://github.com/jianhong/hicar/blob/dev/docs/usage.md">https://github.com/jianhong/hicar/blob/dev/docs/usage.md</a></code></p></div></footer>
+
+
+<footer id="footer" class="footer"></footer>
+
+
+</body></html>

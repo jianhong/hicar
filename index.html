@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>jianhong/hicar</title>
+  <meta name="description" content="This pipeline analyses data for HiCAR data, a robust and sensitive multi-omic co-assay for simultaneous measurement of transcriptome, chromatin accessibility and cis-regulatory chromatin contacts.">
+  <meta name="author" content="Phil Ewels">
+  <meta name="color-scheme" content="light dark">
+  <link rel="shortcut icon" href="./assets/nf-core-logo-square.png" type="image/png">
+  <!-- FontAwesome -->
+  <script type="text/javascript" async="" src="./assets/analytics.js"></script><script type="text/javascript" async="" src="./assets/js"></script><script src="./assets/471b59d3f8.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async="" src="./assets/js(1)"></script>
+  <!-- Other JS -->
+  <script src="./assets/jquery.min.js"></script>
+  <script src="./assets/bootstrap.bundle.min.js"></script>
+  <script src="./assets/highlight.min.js"></script>
+  <script src="./assets/groovy.min.js"></script>
+  <!-- Page-specific CSS and JS -->
+      <script src="./assets/moment.js"></script>
+    <script src="./assets/Chart.min.js"></script>
+    <link href="./assets/Chart.min.css" rel="stylesheet">
+    <script src="./assets/hammer.min.js"></script>
+    <script src="./assets/chartjs-plugin-zoom.min.js"></script>
+    <!-- NO CURRENT VERSION ON NPM --> <script src="./assets/canvas2svg.js"></script><!-- NO CURRENT VERSION ON NPM -->
+    <script src="./assets/FileSaver.min.js"></script>
+    <script src="./assets/jquery.tablesorter.min.js"></script>
+
+  <!-- Custom nf-core CSS and JS -->
+  <link href="./assets/nf-core-light.css" rel="stylesheet" id="theme-stylesheet">
+  <script src="./assets/nf-core.js"></script>
+<style type="text/css">/* Chart.js */
+@keyframes chartjs-render-animation{from{opacity:.99}to{opacity:1}}.chartjs-render-monitor{animation:chartjs-render-animation 1ms}.chartjs-size-monitor,.chartjs-size-monitor-expand,.chartjs-size-monitor-shrink{position:absolute;direction:ltr;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1}.chartjs-size-monitor-expand>div{position:absolute;width:1000000px;height:1000000px;left:0;top:0}.chartjs-size-monitor-shrink>div{position:absolute;width:200%;height:200%;left:0;top:0}</style>
+
+<script>
+    $(document).ready(function(){
+        $("#header").load("header.html");
+        $("#footer").load("footer.html"); 
+    });
+</script>
+</head>
+
+<body tabindex="0">
+    <div class="mainpage">
+        <header id="header"></header>
+
+<div class="container-xxl main-content">
+
+  <ul class="nav nav-fill nfcore-subnav justify-content-around d-print-none">
+    <li class="nav-item">
+      <a class="nav-link active" href="./index.html"><i class="fas fa-sign-in me-1"></i> Introduction</a>
+    </li>
+        <li class="nav-item">
+      <a class="nav-link" href="./usage.html"><i class="far fa-book me-1"></i> Usage docs</a>
+    </li>
+          <li class="nav-item">
+        <a class="nav-link" href="./parameters.html"><i class="far fa-book me-1"></i> Parameter docs</a>
+      </li>
+        <li class="nav-item">
+      <a class="nav-link" href="./output.html"><i class="far fa-book me-1"></i> Output docs</a>
+    </li>
+
+  </ul>
+
+  <div class="row flex-wrap-reverse flex-lg-wrap ms-lg-5"><div class="col-12 col-lg-9"><div class="rendered-markdown pipeline-page-content"><h1 id="introduction" class="">Introduction<a href="./hicar/dev#introduction" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h1>
+<p><strong>jianhong/hicar</strong> is a bioinformatics best-practice analysis pipeline for <a href="https://doi.org/10.1016/j.molcel.2022.01.023">HiC on Accessible Regulatory DNA (HiCAR)</a> data, a robust and sensitive assay for simultaneous measurement of chromatin accessibility and cis-regulatory chromatin contacts. Unlike the immunoprecipitation-based methods such as HiChIP, PlAC-seq and ChIA-PET, HiCAR does not require antibodies. HiCAR utilizes a Transposase-Accessible Chromatin assay to anchor the chromatin interactions. HiCAR is a tool to study chromatin interactions for low input samples and samples with no available antibodies.</p>
+<p>The pipeline can also handle the experiment of HiChIP, ChIA-PET, and PLAC-Seq. It will ask user to input the peak file for the anchor peaks.</p>
+<p>The pipeline is built using <a href="https://www.nextflow.io/">Nextflow</a>, a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The <a href="https://www.nextflow.io/docs/latest/dsl2.html">Nextflow DSL2</a> implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from <a href="https://github.com/nf-core/modules">nf-core/modules</a> in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!</p>
+<p>On release, automated continuous integration tests run the pipeline on a full-sized dataset on the AWS cloud infrastructure. This ensures that the pipeline runs on AWS, has sensible resource allocation defaults set to run on real-world datasets, and permits the persistent storage of results to benchmark between pipeline releases and other analysis sources.The results obtained from the full-sized test can be viewed on the <a href="https://nf-co.re/hicar/results">nf-core website</a>.</p>
+<h2 id="pipeline-summary" class="">Pipeline summary<a href="./hicar/dev#pipeline-summary" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<ol>
+<li>Read QC (<a href="https://www.bioinformatics.babraham.ac.uk/projects/fastqc/"><code>FastQC</code></a>)</li>
+<li>Trim reads (<a href="https://cutadapt.readthedocs.io/en/stable/"><code>cutadapt</code></a>)</li>
+<li>Map reads (<a href="http://bio-bwa.sourceforge.net/bwa.shtml"><code>bwa mem</code></a>)</li>
+<li>Filter reads (<a href="https://pairtools.readthedocs.io/en/latest/"><code>pairtools</code></a>)</li>
+<li>Quality analysis (<a href="https://github.com/4dn-dcic/pairsqc"><code>pairsqc</code></a>)</li>
+<li>Create cooler files (<a href="https://cooler.readthedocs.io/en/latest/index.html"><code>cooler</code></a>)</li>
+<li>Call peaks for ATAC reads (R2 reads) (<a href="https://macs3-project.github.io/MACS/"><code>MACS2</code></a>).</li>
+<li>Call A/B compartments (<a href="https://cooltools.readthedocs.io/en/latest/index.html"><code>cooltools</code></a>, <a href="http://homer.ucsd.edu/homer/"><code>homer</code></a>, etc.)</li>
+<li>Call TADs (<a href="https://hicexplorer.readthedocs.io/en/latest/index.html"><code>HiCExplorer</code></a>, <a href="http://homer.ucsd.edu/homer/"><code>homer</code></a>, etc.)</li>
+<li>Find genomic interaction loops (<a href="https://github.com/ijuric/MAPS"><code>MAPS</code></a>, <a href="https://doi.org/10.1038/s41467-021-23749-x"><code>HiCDCPlus</code></a>, <a href="https://doi.org/10.1038/s41467-020-17239-9">Peakachu</a>, etc.)</li>
+<li>Aggregate peak analysis (<a href="https://hicexplorer.readthedocs.io/en/latest/index.html"><code>HiCExplorer</code></a>, <a href="https://github.com/aidenlab/juicer/wiki"><code>Juicer_tools</code></a>, etc.)</li>
+<li>Call HiPeak (high resolution analysis, time consuming, motif analysis)</li>
+<li>Differential analysis (<a href="https://bioconductor.org/packages/diffHic/"><code>diffHic</code></a>, etc.)</li>
+<li>Annotate genomic interaction loops (<a href="https://bioconductor.org/packages/ChIPpeakAnno/"><code>ChIPpeakAnno</code></a>)</li>
+<li>Visualization (.mcools files <a href="https://cooler.readthedocs.io/en/latest/index.html"><code>cooler</code></a>, .hic files <a href="https://github.com/aidenlab/juicer/wiki"><code>Juicer_tools</code></a>, and circos files <a href="http://circos.ca/"><code>circos</code></a>)</li>
+<li>Pipeline reporting (<a href="http://multiqc.info/"><code>MultiQC</code></a>)</li>
+</ol>
+<p><img src="./assets/workflow.svg" alt="work flow of the pipeline"></p>
+<h2 id="usage" class="">Usage<a href="./hicar/dev#usage" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<blockquote>
+<p><strong>Note</strong>
+If you are new to Nextflow and nf-core, please refer to <a href="https://nf-co.re/docs/usage/installation">this page</a> on how
+to set-up Nextflow. Make sure to <a href="https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline">test your setup</a>
+with <code>-profile test</code> before running the workflow on actual data.</p>
+</blockquote>
+<p>First, prepare a samplesheet with your input data that looks as follows:</p>
+<p><code>samplesheet.csv</code>:</p>
+<pre><code class="language-csv">group,replicate,fastq_1,fastq_2
+CONTROL,1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz</code></pre>
+<p>Each row represents a fastq file (single-end) or a pair of fastq files (paired end).</p>
+<p>Now, you can run the pipeline using:</p>
+<pre><code class="language-console hljs language-shell">nextflow run nf-core/hicar \
+     -profile &lt;docker/singularity/podman/shifter/charliecloud/conda/institute&gt; \
+     --input samplesheet.csv \   # Input data
+     --qval_thresh 0.01 \    # Cut-off q-value for MACS2
+     --genome GRCh38 \       # Genome Reference
+     --mappability /path/mappability/bigWig/file  # Provide mappability to avoid memory intensive calculation</code></pre>
+<blockquote>
+<p><strong>Warning:</strong>
+Please provide pipeline parameters via the CLI or Nextflow <code>-params-file</code> option. Custom config files including those
+provided by the <code>-c</code> Nextflow option can be used to provide any configuration <em><strong>except for parameters</strong></em>;
+see <a href="https://nf-co.re/usage/configuration#custom-configuration-files">docs</a>.</p>
+</blockquote>
+<p>For more details, please refer to the <a href="https://nf-co.re/hicar/usage">usage documentation</a> and the <a href="https://nf-co.re/hicar/parameters">parameter documentation</a>.</p>
+<h2 id="pipeline-output" class="">Pipeline output<a href="./hicar/dev#pipeline-output" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<p>To see the the results of a test run with a full size dataset refer to the <a href="https://nf-co.re/hicar/results">results</a> tab on the nf-core website pipeline page.
+For more details about the output files and reports, please refer to the
+<a href="https://nf-co.re/hicar/output">output documentation</a>.</p>
+<h2 id="credits" class="">Credits<a href="./hicar/dev#credits" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<p>nf-core/hicar was originally written by <a href="https://github.com/jianhong">Jianhong Ou</a>, <a href="https://github.com/yuxuth">Yu Xiang</a>, and <a href="https://www.diaolab.org/">Yarui Diao</a>.</p>
+<p>We thank the following people for their extensive assistance in the development of this pipeline: Luke Zappia, James A. Fellows Yates, Phil Ewels, Mahesh Binzer-Panchal and Friederike Hanssen.</p>
+<h2 id="contributions-and-support" class="">Contributions and Support<a href="./hicar/dev#contributions-and-support" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<p>If you would like to contribute to this pipeline, please see the <a href="./hicar/dev/.github/CONTRIBUTING">contributing guidelines</a>.</p>
+<p>For further information or help, don't hesitate to get in touch on the <a href="https://nfcore.slack.com/channels/hicar">Slack <code>#hicar</code> channel</a> (you can join with <a href="https://nf-co.re/join/slack">this invite</a>).</p>
+<h2 id="citations" class="">Citations<a href="./hicar/dev#citations" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<p>If you use nf-core/hicar for your analysis, please cite it using the following doi: <a href="https://doi.org/10.5281/zenodo.6515312">10.5281/zenodo.6515312</a></p>
+<p>An extensive list of references for the tools used by the pipeline can be found in the <a href="./hicar/dev/CITATIONS"><code>CITATIONS.md</code></a> file.</p>
+<p>You can cite the <code>nf-core</code> publication as follows:</p>
+<blockquote>
+<p><strong>The nf-core framework for community-curated bioinformatics pipelines.</strong></p>
+<p>Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso &amp; Sven Nahnsen.</p>
+<p><em>Nat Biotechnol.</em> 2020 Feb 13. doi: <a href="https://dx.doi.org/10.1038/s41587-020-0439-x">10.1038/s41587-020-0439-x</a>.</p>
+</blockquote></div></div><div class="col-12 col-lg-3 ps-2"><div class="side-sub-subnav sticky-top">
+<div class="pipeline-sidebar">
+  <div class="row border-bottom pb-2">
+    <div class="col-12">
+      <h6><i class="fas fa-terminal fa-xs"></i> command</h6>
+      <div class="input-group input-group-sm pipeline-run-cmd">
+        <input type="text" class="form-control input-sm code" id="pipeline-run-cmd-text" data-autoselect="" value="nextflow run jianhong/hicar -r dev -profile test" aria-label="Copy run command" readonly="">
+        <button class="btn btn-outline-secondary copy-txt" data-bs-target="pipeline-run-cmd-text" data-bs-toggle="tooltip" data-bs-placement="left" title="Copy to clipboard" type="button"><i class="fas fa-clipboard px-1"></i></button>
+      </div>
+    </div>
+  </div>
+  <div>
+    <h6>get in touch</h6>
+    <p><a class="btn btn-sm btn-outline-info" href="https://nfcore.slack.com/channels/hicar"><i class="fab fa-slack me-1"></i> Ask a question on Slack</a></p>
+    <p><a class="btn btn-sm btn-outline-secondary" href="https://github.com/jianhong/hicar/issues"><i class="fab fa-github me-1"></i> Open an issue on GitHub</a></p>
+  </div>
+</div>
+
+</div></div></div></div></div>
+
+<footer class="subfooter"><div class="container"><p class="mb-0"><i class="fab fa-github"></i> Read this page on GitHub: <code><a href="https://github.com/jianhong/hicar/blob/dev/README.md">https://github.com/jianhong/hicar/blob/dev/README.md</a></code></p></div></footer>
+
+<footer id="footer" class="footer"></footer>
+
+<div class="toast" id="pipeline_sidebar_cmd_copied" role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="toast-header">
+    <img src="./assets/nf-core-logo-square.png" class="rounded me-2" alt="">
+    <strong class="me-auto">Command copied!</strong>
+    <button type="button" class="ms-2 mb-1 btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+  <div class="toast-body">
+    Paste this command into your terminal to run the pipeline with a small test dataset.
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(function() {
+    // Plot hover vertical line
+    // https://stackoverflow.com/a/45172506/713980
+    Chart.defaults.LineWithLine = Chart.defaults.line;
+    Chart.controllers.LineWithLine = Chart.controllers.line.extend({
+      draw: function(ease) {
+        Chart.controllers.line.prototype.draw.call(this, ease);
+
+        if (this.chart.tooltip._active && this.chart.tooltip._active.length) {
+          var activePoint = this.chart.tooltip._active[0],
+            ctx = this.chart.ctx,
+            x = activePoint.tooltipPosition().x,
+            topY = this.chart.scales['y-axis-0'].top,
+            bottomY = this.chart.scales['y-axis-0'].bottom;
+
+          // draw line
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(x, topY);
+          ctx.lineTo(x, bottomY);
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = '#999';
+          ctx.stroke();
+          ctx.restore();
+        } else {
+          $('#clones_header').text('clones in last ');
+          $('#clones_count').text('0');
+        }
+      }
+    });
+
+    // Make the plot
+    var ctx = document.getElementById('clones_plot').getContext('2d');
+    new Chart(ctx, {
+      data: {
+        datasets: [{
+          backgroundColor: 'rgba(84, 171, 106, 0.2)',
+          borderColor: 'rgba(84, 171, 106, 1)',
+          pointRadius: 0,
+          pointHoverBorderColor: 'rgba(84, 171, 106, 0)', // transparent
+          pointHoverBackgroundColor: 'rgba(84, 171, 106, 0)', // transparent
+          data: [
+                      ]
+        }],
+      },
+      type: 'LineWithLine',
+      options: {
+        onClick: function(e) {
+          window.location.href = '/hicar/stats';
+        },
+        elements: {
+          point: {
+            radius: 0,
+            hitRadius: 3,
+            hoverRadius: 3
+          },
+          line: {
+            borderWidth: 2,
+            tension: 0 // disables bezier curves
+          }
+        },
+        scales: {
+          xAxes: [{
+            type: 'time',
+            display: false
+          }],
+          yAxes: [{
+            display: false
+          }],
+        },
+        legend: {
+          display: false
+        },
+        tooltips: {
+          enabled: false,
+          mode: 'x',
+          intersect: false,
+          custom: function(tooltipModel) {
+            tooltipModel.opacity = 0
+          },
+          callbacks: {
+            // Use the footer callback to display the sum of the items showing in the tooltip
+            footer: function(tooltipItems, data) {
+              $('#clones_header').text('clones - ' + tooltipItems[0]['label']);
+              $('#clones_count').text(tooltipItems[0]['value']);
+            },
+          }
+        },
+      }
+    });
+  });
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<!-- saved from url=(0055)./output -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>jianhong/hicar</title>
+  <meta name="description" content="This pipeline analyses data for HiCAR data, a robust and sensitive multi-omic co-assay for simultaneous measurement of transcriptome, chromatin accessibility and cis-regulatory chromatin contacts.">
+  <meta name="author" content="Phil Ewels">
+  <meta name="color-scheme" content="light dark">
+  <link rel="shortcut icon" href="./assets/img/logo/nf-core-logo-square.png" type="image/png">
+  <link rel="alternate" type="application/rss+xml" title="nf-core: Events" href="./events/rss">
+  <!-- FontAwesome -->
+  <script type="text/javascript" async="" src="./assets/analytics.js"></script><script type="text/javascript" async="" src="./assets/js"></script><script src="./assets/471b59d3f8.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async="" src="./assets/js(1)"></script>
+  <!-- Other JS -->
+  <script src="./assets/jquery.min.js"></script>
+  <script src="./assets/bootstrap.bundle.min.js"></script>
+  <script src="./assets/highlight.min.js"></script>
+  <script src="./assets/groovy.min.js"></script>
+  <!-- Page-specific CSS and JS -->
+      <script src="./assets/moment.js"></script>
+    <script src="./assets/Chart.min.js"></script>
+    <link href="./assets/Chart.min.css" rel="stylesheet">
+    <script src="./assets/hammer.min.js"></script>
+    <script src="./assets/chartjs-plugin-zoom.min.js"></script>
+    <!-- NO CURRENT VERSION ON NPM --> <script src="./assets/canvas2svg.js"></script><!-- NO CURRENT VERSION ON NPM -->
+    <script src="./assets/FileSaver.min.js"></script>
+    <script src="./assets/jquery.tablesorter.min.js"></script>
+
+  <!-- Custom nf-core CSS and JS -->
+  <link href="./assets/nf-core-light.css" rel="stylesheet" id="theme-stylesheet">
+  <script src="./assets/nf-core.js"></script>
+  <script>
+  $(document).ready(function(){
+      $("#header").load("header.html");
+      $("#footer").load("footer.html");
+  });
+  </script>
+</head>
+
+<body tabindex="0">
+    <div class="mainpage">
+      <header id="header"></header>
+
+<div class="container-xxl main-content">
+
+  <ul class="nav nav-fill nfcore-subnav justify-content-around d-print-none">
+    <li class="nav-item">
+      <a class="nav-link" href="./index.html"><i class="fas fa-sign-in me-1"></i> Introduction</a>
+    </li>
+        <li class="nav-item">
+      <a class="nav-link" href="./usage.html"><i class="far fa-book me-1"></i> Usage docs</a>
+    </li>
+          <li class="nav-item">
+        <a class="nav-link" href="./parameters.html"><i class="far fa-book me-1"></i> Parameter docs</a>
+      </li>
+        <li class="nav-item">
+      <a class="nav-link active" href="./output.html"><i class="far fa-book me-1"></i> Output docs</a>
+    </li>
+
+  </ul>
+
+  <div class="row flex-wrap-reverse flex-lg-wrap ms-lg-5"><div class="col-12 col-lg-9"><div class="rendered-markdown pipeline-page-content"><h1 id="introduction" class="">Introduction<a href="./output.html#introduction" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h1>
+<p>This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.</p>
+<p>The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.</p>
+<h2 id="pipeline-overview" class="">Pipeline overview<a href="./output.html#pipeline-overview" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h2>
+<p>The pipeline is built using <a href="https://www.nextflow.io/">Nextflow</a> and processes data using the following steps:</p>
+<ul>
+<li><a href="./output.html#fastqc">FastQC</a> - Raw read QC</li>
+<li><a href="./output.html#multiqc">MultiQC</a> - Aggregate report describing results and QC from the whole pipeline</li>
+<li><a href="./output.html#pipeline-information">Pipeline information</a> - Report metrics generated during the workflow execution</li>
+<li><a href="./output.html#genome">genome</a> - The genome related files used in the pipeline.</li>
+<li><a href="./output.html#alignment">bwa</a> - The alignments of trimmed reads.</li>
+<li><a href="./output.html#pairs">pairs</a> - The interaction pairs and their quality control reports.</li>
+<li><a href="./output.html#matrix-for-visualization">Matrix for visualization</a> - Cooler or Juicer files for visualization</li>
+<li><a href="./output.html#call-peaks-for-r2-reads">ATACpeak</a> - The peaks called for ATAC reads (R2 reads).</li>
+<li><a href="./output.html#Compartments">A/B Compartments</a> - Called A/B compartments.</li>
+<li><a href="./output.html#TADs">TADs</a> - Called topologically associating domains.</li>
+<li><a href="./output.html#chromatin-interactions">Interactions</a> - The chromatin interactions determined by MAPS/HiCDCPlus or other tools.</li>
+<li><a href="./output.html#differential-analysis">DifferentialAnalyis</a> - Differential analysis for chromatin interactions.</li>
+<li><a href="./output.html#annotations">Annotation</a> - Annotations for the interactions.</li>
+<li><a href="./output.html#call-peaks-for-fragment-reads">fragmentPeak</a> - The peaks called for R1 reads.</li>
+<li><a href="./output.html#high-resolution-interactions">HiCARpeak</a> - The high resolution loops called for R1 and R2 peaks for motif analysis.</li>
+<li><a href="./output.html#motif-enrichment">TFEA</a> - The motif enrichment analysis results.</li>
+<li><a href="./output.html#circos">circos</a> - The circos plots.</li>
+<li><a href="./output.html#virtual-4c">V4C</a> - The virtual 4C plots.</li>
+<li><a href="./output.html#aggregate-peak-analysis">APA</a> - The aggregate peak analysis results.</li>
+<li><a href="./output.html#igv">igv.js</a> - The track files which can be viewed by web-server.</li>
+</ul>
+<h3 id="fastqc" class="">FastQC<a href="./output.html#fastqc" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>fastqc/</code><ul>
+<li><code>*_fastqc.html</code>: FastQC report containing quality metrics.</li>
+<li><code>*_fastqc.zip</code>: Zip archive containing the FastQC report, tab-delimited data file and plot images.</li>
+</ul>
+</li>
+</ul>
+</details>
+<p><a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/">FastQC</a> gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the <a href="http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/">FastQC help pages</a>.</p>
+<p><img src="./assets/mqc_fastqc_counts.png" alt="MultiQC - FastQC sequence counts plot"></p>
+<p><img src="./assets/mqc_fastqc_quality.png" alt="MultiQC - FastQC mean quality scores plot"></p>
+<p><img src="./assets/mqc_fastqc_adapter.png" alt="MultiQC - FastQC adapter content plot"></p>
+<blockquote>
+<p><strong>NB:</strong> The FastQC plots displayed in the MultiQC report shows <em>untrimmed</em> reads. They may contain adapter sequence and potentially regions with low quality.</p>
+</blockquote>
+<h3 id="multiqc" class="">MultiQC<a href="./output.html#multiqc" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>multiqc/</code><ul>
+<li><code>multiqc_report.html</code>: a standalone HTML file that can be viewed in your web browser.</li>
+<li><code>multiqc_data/</code>: directory containing parsed statistics from the different tools used in the pipeline.</li>
+<li><code>multiqc_plots/</code>: directory containing static images from the report in various formats.</li>
+</ul>
+</li>
+</ul>
+</details>
+<p><a href="http://multiqc.info/">MultiQC</a> is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.</p>
+<p>Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQC. The pipeline has special steps which also allow the software versions to be reported in the MultiQC output for future traceability. For more information about how to use MultiQC reports, see <a href="http://multiqc.info/">http://multiqc.info</a>.</p>
+<h3 id="pipeline-information" class="">Pipeline information<a href="./output.html#pipeline-information" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>pipeline_info/</code><ul>
+<li>Reports generated by Nextflow: <code>execution_report.html</code>, <code>execution_timeline.html</code>, <code>execution_trace.txt</code> and <code>pipeline_dag.dot</code>/<code>pipeline_dag.svg</code>.</li>
+<li>Reports generated by the pipeline: <code>pipeline_report.html</code>, <code>pipeline_report.txt</code> and <code>software_versions.yml</code>. The <code>pipeline_report*</code> files will only be present if the <code><span class="text-nowrap">--email</span></code> / <code><span class="text-nowrap">--email_on_fail</span></code> parameter's are used when running the pipeline.</li>
+<li>Reformatted samplesheet files used as input to the pipeline: <code>samplesheet.valid.csv</code>.</li>
+</ul>
+</li>
+</ul>
+</details>
+<p><a href="https://www.nextflow.io/docs/latest/tracing.html">Nextflow</a> provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.</p>
+<h3 id="genome" class="">Genome<a href="./output.html#genome" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>genome/</code><ul>
+<li><code>genome.fa.sizes</code>: chromosome sizes file</li>
+<li><code>genome.fa.fai</code>: genome index file</li>
+<li><code>filtered/genome.include_regions.bed</code>: filtered genome by blacklist</li>
+<li><code>digest/*</code>: genomic features files digested by given restriction enzyme</li>
+</ul>
+</li>
+</ul>
+</details>
+<p>If the mappability file is not provided in the profile file, the <a href="https://pubmed.ncbi.nlm.nih.gov/32246826/">GenMap</a> will be used to create the mappability file with read length set to 50.</p>
+<h3 id="alignment" class="">Alignment<a href="./output.html#alignment" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>bwa/mapped/bam/*.(bam|bai)</code>: The files resulting from the alignment of individual libraries will contain the coordinate sorted alignment files in <a href="https://samtools.github.io/hts-specs/SAMv1.pdf"><code>*.bam</code></a> format.</li>
+<li><code>bwa/mapped/QC/*</code>: The stats of mapping results.</li>
+</ul>
+</details>
+<p>Adapter-trimmed reads are mapped to the reference assembly using <a href="http://bio-bwa.sourceforge.net/bwa.shtml">BWA::mem</a>. A genome index is required to run BWA so if this is not provided explicitly using the <code><span class="text-nowrap">--bwa_index</span></code> parameter then it will be created automatically from the genome fasta input. The index creation process can take a while for larger genomes.</p>
+<h3 id="pairs" class="">Pairs<a href="./output.html#pairs" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>pairs/</code><ul>
+<li><code>raw/*</code>: The raw reads pairs for each sample and stats for the pairs.</li>
+<li><code>filtered/*</code>: The filtered files in hdf5 format. The hdf5 files in the folder can be used to generate virtual 4C plots.</li>
+<li><code>QC/*</code>: The quality analysis results.</li>
+</ul>
+</li>
+</ul>
+</details>
+<p>The raw and filtered pairs exported by <a href="https://pairtools.readthedocs.io/en/latest/">pairtools</a>.
+The quality analysis for filtered pairs were done by <a href="https://github.com/4dn-dcic/pairsqc">pairsqc</a>.</p>
+<p>The hdf5 filtered pairs contains following groups:</p>
+<ul>
+<li><code>header/</code>, including total reads, chromosome name and sizes, tile width for index.<ul>
+<li><code>header/chrom_sizes</code>, COMPOUND</li>
+<li><code>header/header</code>, STRING</li>
+<li><code>header/tile_width</code>, INTEGER</li>
+<li><code>header/total</code>, INTEGER</li>
+</ul>
+</li>
+<li><code>data/</code>, pairs in path <code>data/chr1_for_R1_reads/chr2_for_R2_reads/tileIndex1_tileIndex2/</code>, the tile index is calculated by the ceiling of posistion divided by tile width.<ul>
+<li><code>position</code>, genomic location saved in path <code>data/chr1/chr2/tileIndex1_tileIndex2/position</code></li>
+<li><code>strand</code>, strand info saved in <code>path data/chr1/chr2/tileIndex1_tileIndex2/strand</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="matrix-for-visualization" class="">Matrix for visualization<a href="./output.html#matrix-for-visualization" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>matrix/mcool/*</code>: The mcool files for each group.</li>
+<li><code>matrix/hic/*</code>: The .hic files for each group.</li>
+<li><code>matrix/HiCExplorer/*</code>: The h5 files normalized by HiCExplorer for each group.</li>
+</ul>
+</details>
+<p><a href="https://cooler.readthedocs.io/en/latest/index.html">Cooler</a> files for visualization.
+To view the <code>.mcool</code> files, you may want to try <a href="https://github.com/higlass/higlass-manage">higlass-manage</a>.
+Once <code>higlass-manage</code> is installed, view the files using the command:</p>
+<pre><code class="language-bash hljs">higlass-manage view cooler/mcool/your.mcool</code></pre>
+<p><a href="https://github.com/aidenlab/Juicebox">Juicebox</a> can be used to view the <code>.hic</code> file.
+Visualizing the <code>.hic</code> file with Juicebox is an alternative when <code>higlass-manage</code> is not available.</p>
+<h3 id="call-peaks-for-r2-reads" class="">Call peaks for R2 reads<a href="./output.html#call-peaks-for-r2-reads" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>atac_peak/</code><ul>
+<li><code>R2_bigwig/*</code>: The bigWig files of R2_reads.</li>
+<li><code>peaks_per_Group/*</code>: The called peaks for each group.</li>
+<li><code>merged_peaks/*</code>: The merged peaks for all groups.</li>
+<li><code>QC/*</code>: The quality controls</li>
+</ul>
+</li>
+</ul>
+</details>
+<p>The peaks called ATAC reads (R2 reads) by <a href="https://github.com/macs3-project/MACS">MACS2</a>.
+Different from ATAC-seq peak calling, the ATAC reads in HiCAR is single end.
+By default, the peaks are called by <code><span class="text-nowrap">--no-model</span></code> parameter for the R2 reads in BED format.</p>
+<h3 id="compartments" class="">Compartments<a href="./output.html#compartments" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>compartments</code><ul>
+<li><code>cooltools/</code><ul>
+<li><code>*</code>: The tables and bigwig files of A/B compartments.</li>
+</ul>
+</li>
+<li><code>homer/</code><ul>
+<li><code>pca/*</code>: The Principal Component Analysis outputs.</li>
+<li><code>compartments/*</code>: The called A/B compartments.</li>
+</ul>
+</li>
+<li><code>HiCExplorer/</code><ul>
+<li><code>*</code>: By default, all intermediate matrices will be generated: obs_exp-all.h5, pearson_all.h5 and covariance_all.h5.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</details>
+<p>To compute the A/B compartments ask correlation matrix computed by observed/expected matrix in the way described by <a href="https://doi.org/10.1126/science.1181369">Lieberman-Aiden</a> and are determined by the eigenvectors based on the covariance matrix of the correlation matrix.</p>
+<h3 id="tads" class="">TADs<a href="./output.html#tads" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>tads</code><ul>
+<li><code>cooltools/</code><ul>
+<li><code>*</code>: The called TADs.</li>
+</ul>
+</li>
+<li><code>homer/</code><ul>
+<li><code>*_tagdir/*</code>: The called TAD in BED format.</li>
+</ul>
+</li>
+<li><code>HiCExplorer/</code><ul>
+<li><code>*</code>: The output form <code>hicFindTADs</code>:<ul>
+<li><code>*_hicfindtads_tad_score.bam</code>: the TAD-separation score file</li>
+<li><code>*_hicfindtads_zscore_matrix.cool</code>: the z-score matrix</li>
+<li><code>*_hicfindtads_boundaries.bed</code>: the bed files with the boundary location</li>
+<li><code>*_hicfindtads_domains.bed</code>: the bed files with the domains</li>
+<li><code>*_hicfindtads_score.bedgraph</code>: the bedgraph file with the TAD-score that can be visualized in a genome browser.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</details>
+<p>To call TADs by <a href="https://hicexplorer.readthedocs.io/en/latest/content/example_usage.html#tad-calling">HiCExplorer</a>,
+a corrected matrix is needed. The TAD-separation score is based on a Z-score matrix for all bins.
+The TAD-separation score and the matrix will be visualized using <a href="https://hicexplorer.readthedocs.io/en/latest/content/tools/hicPlotTADs.html#hicplottads">hicPlotTADs</a>.</p>
+<h3 id="chromatin-interactions" class="">Chromatin interactions<a href="./output.html#chromatin-interactions" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>interactions</code><ul>
+<li><code>hicdcplus/</code><ul>
+<li><code>merged/*</code>: The merged loops for each resolution.</li>
+<li><code>*</code>: The tables of chromatin interactions with p-value and fdr.</li>
+</ul>
+</li>
+<li><code>maps/</code><ul>
+<li><code>merged/*</code>: The merged loops for each resolution.</li>
+<li><code>*</code>: The tables of chromatin interactions with p-value and fdr.</li>
+</ul>
+</li>
+<li><code>peakachu/</code><ul>
+<li><code>merged/*</code>: The merged loops for each resolution.</li>
+<li><code>*</code>: The bedpe files of chromatin interactions with peakachu scores.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</details>
+<p>Use different caller to call chromatin loops/interactions can be done by set the parameter <code><span class="text-nowrap">--interactions_tool</span></code> in command line or <code>interactions_tool</code> in the configuration file.</p>
+<p>The default chromatin interactions are called by <a href="https://pubmed.ncbi.nlm.nih.gov/30986246/">MAPS</a>.
+MAPS is a model-based analysis of long-range chromatin interactions for <code>AND</code> or <code>XOR</code> reads.</p>
+<ul>
+<li><code>AND</code> set: bin pairs with <code>both</code> ends overlapping two anchors of interaction.</li>
+<li><code>XOR</code> set: bin pairs with one end overlapping one anchor of the interaction.</li>
+</ul>
+<p>It will remove the systematic bias by accessibility.
+By default, the interactions are called by <code>positive poisson</code> regression model
+and then filtered by coverage (default is 12 per bin), fold change (default is 2 times over expected value) and fdr (default is 0.01).</p>
+<p>The chromatin interactions called by <a href="https://doi.org/10.1038/s41467-021-23749-x">HiCDCPlus</a>
+and <a href="https://doi.org/10.1038/s41467-020-17239-9">peakachu</a> or other tools are also located in interactions folder.</p>
+<h3 id="differential-analysis" class="">Differential analysis<a href="./output.html#differential-analysis" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>differential_analysis/&lt;differential analysis tool&gt;/&lt;interaction caller&gt;/*</code>: Differential analysis results.</li>
+</ul>
+<p></p>
+</details>
+<p>Differential analysis for the loops by <a href="https://pubmed.ncbi.nlm.nih.gov/19910308/">edgeR</a>,
+<a href="https://doi.org/10.1186/s12859-015-0683-0">diffHic</a> or simply set operation will be put in the folder.
+The subfolder names are the tools used in differentail analysis and in each subfolder,
+different resolution results will be saved in another subfolder.</p>
+<p>The input counts are filtered counts dumped by pairtools for each samples.
+The differential analysis is done for validated chromatin interactions by loop caller.</p>
+<h3 id="annotations" class="">Annotations<a href="./output.html#annotations" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>annotations/&lt;interaction caller&gt;/*</code>: Annotation results.</li>
+</ul>
+<p></p>
+</details>
+<p>Annotation is done by <a href="https://pubmed.ncbi.nlm.nih.gov/20459804/">ChIPpeakAnno</a>
+for the overlap features (gene level) or nearest features.</p>
+<h3 id="call-peaks-for-fragment-reads" class="">Call peaks for fragment reads<a href="./output.html#call-peaks-for-fragment-reads" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>fragment_peak/</code><ul>
+<li><code>R1_bigwig/</code><ul>
+<li><code>byGroup/*</code>: The bigWig files of R1_reads for each group.</li>
+<li><code>pos1/*</code>: The bigWig files of 5' ends of R1_reads.</li>
+</ul>
+</li>
+<li><code>merged_peaks/merged_peak.bed</code>: The bed file with merged R1 peaks from all samples.</li>
+<li><code>peaks_per_Group/*</code>: The MACS2 output for each group.</li>
+</ul>
+</li>
+</ul>
+</details>
+<p>The peaks called fragment (R1) reads by fitting the reads counts in fragmentation sites with Poisson distribution.
+The fragment reads will be more noisy compare to ATAC (R2) reads and the p value cutoff will be higher to get proper peaks for interaction calling.</p>
+<h3 id="high-resolution-interactions" class="">High resolution interactions<a href="./output.html#high-resolution-interactions" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>high_peak</code><ul>
+<li><code>*/</code>: The high resolution interactions in bedpe format and tab delimited format.</li>
+</ul>
+</li>
+</ul>
+</details>
+<p>The HiCAR <code>fastq</code> files are paired ends (PE). But it will be difficult to check the reads in pairs for <a href="https://software.broadinstitute.org/software/igv/">IGV</a>.
+In order to view the reads located in the R1 and R2 peaks, the <code>psuedo-bam</code> files are created by adding insertion to the PE and converted as single ends.
+When the <code>psuedo-bam</code> file is load to IGV, the PEs will be linked by a line, which will help user to double check the reads located in the chromation interactions.
+The high resolution chromatin interactions (HiPeak) are called by similar methods like <a href="https://pubmed.ncbi.nlm.nih.gov/30986246/">MAPS</a> to remove the systematic bias by accessibility.
+The difference is that HiPeak will also consider the trans-interactions.
+The output of HiPeak is designed for motif enrichment analysis.</p>
+<h3 id="motif-enrichment" class="">Motif enrichment<a href="./output.html#motif-enrichment" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>tfea/&lt;package_name&gt;/&lt;tool_name&gt;/*</code>: transcription factor enrichment analysis results.</li>
+</ul>
+<p></p>
+</details>
+<p>The TFEA will be done for the peaks call by R1, R2 reads and the high resolution interactions.</p>
+<h3 id="circos" class="">circos<a href="./output.html#circos" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>circos/*</code>: circos plots.</li>
+</ul>
+</details>
+<p><a href="http://circos.ca/">circos</a> is a perl package for visualizing data in a circular layout.
+circos is used to produce the genomic view of chromatin interactions for HiPeak.</p>
+<h3 id="virtual-4c" class="">Virtual 4C<a href="./output.html#virtual-4c" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>v4c/&lt;package_name&gt;/*</code>: Virtual 4C plots.</li>
+</ul>
+<p></p>
+</details>
+<p>The default events are differential results top events.</p>
+<h3 id="aggregate-peak-analysis" class="">Aggregate peak analysis<a href="./output.html#aggregate-peak-analysis" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>apa/&lt;package_name&gt;/*</code>: Aggregate peak analysis plots.</li>
+</ul>
+<p></p>
+</details>
+<h3 id="igv" class="">IGV<a href="./output.html#igv" class="header-link scroll_to_link"><span class="fas fa-link"></span></a></h3>
+<details>
+<summary>Output files</summary>
+<ul>
+<li><code>igv.js/*</code>: index.html, readme.txt and track_files.txt.</li>
+</ul>
+</details>
+<p>The track.txt contain the reads tracks and interactions called by MAPS. Copy all the files into a web-server to view the data vis <a href="https://github.com/igvteam/igv.js/">igv.js</a>.</p></div></div><div class="col-12 col-lg-3 ps-2"><div class="side-sub-subnav sticky-top"><nav class="toc pt-2 auto-toc border-start d-print-none"><strong class="ms-3 d-inline-block w-100 text-secondary border-bottom">On this page</strong>
+<nav class="nav flex-column flex-nowrap">
+<a class="nav-link scroll_to_link py-1  active " href="./output.html#introduction">Introduction</a>
+<nav class="nav flex-column flex-nowrap">
+<a class="nav-link scroll_to_link py-1 " href="./output.html#pipeline-overview">Pipeline overview</a>
+<nav class="nav flex-column flex-nowrap">
+<a class="nav-link scroll_to_link py-1 " href="./output.html#fastqc">FastQC</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#multiqc">MultiQC</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#pipeline-information">Pipeline information</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#genome">Genome</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#alignment">Alignment</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#pairs">Pairs</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#matrix-for-visualization">Matrix for visualization</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#call-peaks-for-r2-reads">Call peaks for R2 reads</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#compartments">Compartments</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#tads">TADs</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#chromatin-interactions">Chromatin interactions</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#differential-analysis">Differential analysis</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#annotations">Annotations</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#call-peaks-for-fragment-reads">Call peaks for fragment reads</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#high-resolution-interactions">High resolution interactions</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#motif-enrichment">Motif enrichment</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#circos">circos</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#virtual-4c">Virtual 4C</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#aggregate-peak-analysis">Aggregate peak analysis</a>
+<a class="nav-link scroll_to_link py-1 " href="./output.html#igv">IGV</a></nav></nav></nav>
+      <div class="text-center ms-1">
+        <button class="btn btn-sm btn-outline-secondary expand-details w-100">
+          <span class=""><i class="fas fa-arrows-v"></i> Expand all output file details</span>
+        </button>
+      </div><p class="small text-end mt-3"><a href="./output.html#" class="text-muted"><i class="fas fa-arrow-to-top"></i> Back to top</a></p></nav></div></div></div></div></div><footer class="subfooter"><div class="container"><p class="mb-0"><i class="fab fa-github"></i> Read this page on GitHub: <code><a href="https://github.com/jianhong/hicar/blob/dev/docs/output.md">https://github.com/jianhong/hicar/blob/dev/docs/output.md</a></code></p></div></footer>
+<footer id="footer" class="footer"></footer>
+
+
+</body></html>

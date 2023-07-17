@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)./usage -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>jianhong/hicar » nf-core</title>
+  <meta name="description" content="This pipeline analyses data for HiCAR data, a robust and sensitive multi-omic co-assay for simultaneous measurement of transcriptome, chromatin accessibility and cis-regulatory chromatin contacts.">
+  <meta name="author" content="Jianhong">
+  <meta name="color-scheme" content="light dark">
+  <link rel="shortcut icon" href="./assets/img/logo/nf-core-logo-square.png" type="image/png">
+  <link rel="alternate" type="application/rss+xml" title="nf-core: Events" href="./events/rss">
+  <!-- FontAwesome -->
+  <script type="text/javascript" async="" src="./assets/analytics.js"></script><script type="text/javascript" async="" src="./assets/js"></script><script src="./assets/471b59d3f8.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async="" src="./assets/js(1)"></script>
+  <!-- Other JS -->
+  <script src="./assets/jquery.min.js"></script>
+  <script src="./assets/bootstrap.bundle.min.js"></script>
+  <script src="./assets/highlight.min.js"></script>
+  <script src="./assets/groovy.min.js"></script>
+  <!-- Page-specific CSS and JS -->
+      <script src="./assets/moment.js"></script>
+    <script src="./assets/Chart.min.js"></script>
+    <link href="./assets/Chart.min.css" rel="stylesheet">
+    <script src="./assets/hammer.min.js"></script>
+    <script src="./assets/chartjs-plugin-zoom.min.js"></script>
+    <!-- NO CURRENT VERSION ON NPM --> <script src="./assets/canvas2svg.js"></script><!-- NO CURRENT VERSION ON NPM -->
+    <script src="./assets/FileSaver.min.js"></script>
+    <script src="./assets/jquery.tablesorter.min.js"></script>
+
+  <!-- Custom nf-core CSS and JS -->
+  <link href="./assets/nf-core-light.css" rel="stylesheet" id="theme-stylesheet">
+  <script src="./assets/nf-core.js"></script>
+  <script>
+  $(document).ready(function(){
+      $("#header").load("header.html");
+      $("#footer").load("footer.html");
+      getCmd = function(){
+        var cmd = "nextflow run jianhong/hicar -r " + $("#version").val();
+        const params0 = ["profile"];
+        for(let i=0; i<params0.length; i++){
+          if($("#"+params0[i]).val()!=""){
+            cmd += " -" + params0[i] + " " + $("#"+params0[i]).val();
+          }
+        }
+        const params1 = ["input", "outdir", "email", "genome", "enzyme"];
+        for(let i=0; i<params1.length; i++){
+          if($("#"+params1[i]).val()!=""){
+            cmd += " --" + params1[i] + " " + $("#"+params1[i]).val();
+          }
+        }
+        console.log($("#skip_cutadapt").val());
+        if(!$("#skip_cutadapt").is(':checked')){
+          if($("#cutadapt_5end").val()!=""){
+            cmd += " --cutadapt_5end \"" + $("#cutadapt_5end").val() + "\"";
+          }else{
+            cmd += " --skip_cutadapt";
+          }
+        }else{
+          cmd += " --skip_cutadapt";
+        }
+        const params2 = ["interactions", "tads", "compartments", "diff_analysis"];
+        const params3 = ["interactions", "tad", "compartments", "da"];
+        for(let i=0; i<params2.length; i++){
+          if(!$("#skip_"+params2[i]).is(':checked')){
+            cmd += " --" + params3[i] + "_tool " + $("#"+params3[i]+"_tool").val();
+          }else{
+            cmd +=" --skip_"+params2[i];
+          }
+        }
+
+        const params4 = ["do_tfea", "create_virtual_4c"];
+        const params5 = ["tfea", "v4c"];
+        for(let i=0; i<params4.length; i++){
+          if($("#"+params4[i]).is(':checked')){
+            cmd += " --" + params4[i] + " --" + params5[i] + "_tool "+ $("#"+params5[i]+"_tool").val();
+          }
+        }
+        if($("#hpc").is(':checked')){
+          cmd += " -process.executor " + $("#executor").val() + " -process.clusterOptions \"" + $("#clusteroptions").val() + "\"";
+        }
+        return(cmd);
+      }
+      $("#code").text(getCmd());
+      $('.hicarinput').change(function(){
+        var cmd = getCmd();
+        $("#code").text(cmd);
+      });
+  });
+  </script>
+</head>
+
+<body tabindex="0">
+    <div class="mainpage">
+      <header id="header"></header>
+
+<div class="container-xxl main-content">
+
+  <ul class="nav nav-fill nfcore-subnav justify-content-around d-print-none">
+    <li class="nav-item">
+      <a class="nav-link" href="./index.html"><i class="fas fa-sign-in me-1"></i> Introduction</a>
+    </li>
+        <li class="nav-item">
+      <a class="nav-link" href="./usage.html"><i class="far fa-book me-1"></i> Usage docs</a>
+    </li>
+          <li class="nav-item">
+        <a class="nav-link" href="./parameters.html"><i class="far fa-book me-1"></i> Parameter docs</a>
+      </li>
+        <li class="nav-item">
+      <a class="nav-link" href="./output.html"><i class="far fa-book me-1"></i> Output docs</a>
+    </li>
+  </ul>
+
+  <div id="form">
+    <ul>
+      <li> <label for="version">pipeline version</label>
+        <select type="text" id="version" name="version" class='hicarinput'>
+          <option value="dev2" selected>dev2</option>
+          <option value="dev">dev</option>
+          <option value="1.0.0">release 1.0.0</option>
+        </select>
+      </li>
+      <li> <label for="profile">profile</label>
+        <select type="text" id="profile" name="profile" class='hicarinput'>
+          <option value="" selected></option>
+          <option value="singularity">singularity</option>
+          <option value="docker">docker</option>
+          <option value="conda">conda</option>
+          <option value="podman">podman</option>
+          <option value="shifter">shifter</option>
+          <option value="charliecloud">charliecloud</option>
+          <option value="institute">institute</option>
+        </select>
+      </li>
+      <li> <label for="input">sample information csv filename</label><input type="text" id="input" name="input" value="designTable.csv" class='hicarinput'></li>
+      <li> <label for="outdir">output directory</label><input type="text" id="outdir" name="outdir" value="results" class='hicarinput'></li>
+      <li> <label for="email">email</label><input type="text" id="email" name="email" value="your.email@xxx.edu" class='hicarinput'></li>
+      <li>
+        <label for="genome">genome</label>
+        <select type="text" id="genome" name="genome" class='hicarinput'>
+          <option value="GRCh38">GRCh38</option>
+          <option value="GRCh37">GRCh37</option>
+          <option value="hg38">hg38</option>
+          <option value="hg19">hg19</option>
+          <option value="GRCm38">GRCm38</option>
+          <option value="mm10">mm10</option>
+          <option value="WBcel235">WBcel235</option>
+          <option value="ce10">ce10</option>
+          <option value="CanFam3.1">CanFam3.1</option>
+          <option value="canFam3">canFam3</option>
+          <option value="GRCz10">GRCz10</option>
+          <option value="danRer10">danRer10</option>
+          <option value="BDGP6">BDGP6</option>
+          <option value="dm6">dm6</option>
+          <option value="EquCab2">EquCab2</option>
+          <option value="equCab2">equCab2</option>
+          <option value="Galgal4">Galgal4</option>
+          <option value="galGal4">galGal4</option>
+          <option value="Rnor_5.0">Rnor_5.0</option>
+          <option value="Rnor_6.0">Rnor_6.0</option>
+          <option value="rn6">rn6</option>
+          <option value="R64-1-1">R64-1-1</option>
+          <option value="EF2">EF2</option>
+          <option value="Sbi1">Sbi1</option>
+          <option value="Sscrofa10.2">Sscrofa10.2</option>
+          <option value="AGPv3">AGPv3</option>
+          <option value="CHM13">CHM13</option>
+          <option value="TAIR10">TAIR10</option>
+          <option value="EB1">EB1</option>
+          <option value="EB2">EB2</option>
+          <option value="UMD3.1">UMD3.1</option>
+          <option value="Gm01">Gm01</option>
+          <option value="Mmul_1">Mmul_1</option>
+          <option value="IRGSP-1.0">IRGSP-1.0</option>
+          <option value="CHIMP2.1.4">CHIMP2.1.4</option>
+          <option value="bosTau8">bosTau8</option>
+          <option value="panTro4">panTro4</option>
+          <option value="sacCer3">sacCer3</option>
+          <option value="susScr3">susScr3</option>
+        </select>
+      </li>
+      <li>
+        <label for="enzyme">enzyme</label>
+        <select type="text" id="enzyme" name="enzyme" class='hicarinput'>
+          <option value="CviQI" selected>CviQI</option>
+          <option value="MboI">MboI</option>
+          <option value="DpnII">DpnII</option>
+          <option value="BglII">BglII</option>
+          <option value="HindIII">HindIII</option>
+          <option value="MseI">MseI</option>
+        </select>
+      </li>
+      <li>
+        <label for="skip_cutadapt">skip cutadapt </label><input type="checkbox" id="skip_cutadapt" name="skip_cutadapt" class='hicarinput'>
+        <label for="cutadapt_5end">If not skip, 5 ends to be removed</label><input type="text" id="cutadapt_5end" name="cutadapt_5end" value="^TAC" class='hicarinput'>
+      </li>
+      <li>
+        <label for="hpc">Use cluster</label><input type="checkbox" id="hpc" name="hpc" class='hicarinput'>
+        <label for="exector">Executor</label><input type="text" id="exector" name="exector" value="slurm" class='hicarinput'>
+        <label for="clusteroptions">Executor</label><input type="text" id="clusteroptions" name="clusteroptions" value="-J jobname -p scavenger" class='hicarinput'>
+      </li>
+      <li>
+        <label for="skip_interactions">skip interactions caller </label><input type="checkbox" id="skip_interactions" name="skip_interactions" class='hicarinput'>
+        <label for="interactions_tool">Interaction caller</label>
+        <select type="text" id="interactions_tool" name="interactions_tool" class='hicarinput'>
+          <option value="maps" selected>maps</option>
+          <option value="hicdcplus">hicdcplus</option>
+          <option value="peakachu">peakachu</option>
+        </select>
+      </li>
+      <li>
+        <label for="skip_tads">skip TADs caller </label><input type="checkbox" id="skip_tads" name="skip_tads" class='hicarinput'>
+        <label for="tad_tool">TADs caller</label>
+        <select type="text" id="tad_tool" name="tad_tool" class='hicarinput'>
+          <option value="cooltools">cooltools</option>
+          <option value="hicexplorer" selected>hicexplorer</option>
+          <option value="homer">homer</option>
+        </select>
+      </li>
+      <li>
+        <label for="skip_compartments">skip compartments caller </label><input type="checkbox" id="skip_compartments" name="skip_compartments" class='hicarinput'>
+        <label for="compartments_tool">Compartment caller</label>
+        <select type="text" id="compartments_tool" name="compartments_tool" class='hicarinput'>
+          <option value="cooltools" selected>cooltools</option>
+          <option value="hicexplorer">hicexplorer</option>
+          <option value="homer">homer</option>
+          <option value="juicebox">juicebox</option>
+        </select>
+      </li>
+      <li>
+        <label for="skip_diff_analysis">skip Differential analysis </label><input type="checkbox" id="skip_diff_analysis" name="skip_diff_analysis" class='hicarinput'>
+        <label for="da_tool">Differential analysis tool</label>
+        <select type="text" id="da_tool" name="da_tool" class='hicarinput'>
+          <option value="edger">edger</option>
+          <option value="diffhic" selected>diffhic</option>
+          <option value="hicexplorer">hicexplorer</option>
+          <option value="setOperation">setOperation</option>
+        </select>
+      </li>
+      <li>
+        <label for="do_tfea">Do TFEA analysis </label><input type="checkbox" id="do_tfea" name="do_tfea" class='hicarinput'>
+        <label for="tfea_tool">TFEA tool</label>
+        <select type="text" id="tfea_tool" name="tfea_tool" class='hicarinput'>
+          <option value="homer" selected>homer</option>
+          <option value="atacseqtfea">atacseqtfea</option>
+        </select>
+      </li>
+      <li>
+        <label for="create_virtual_4c">Create virtual 4C plots </label><input type="checkbox" id="create_virtual_4c" name="create_virtual_4c" class='hicarinput'>
+        <label for="v4c_tool">virtual 4C plots tool</label>
+        <select type="text" id="v4c_tool" name="v4c_tool" class='hicarinput'>
+        <option value="cooltools">cooltools</option>
+          <option value="hicexplorer" selected>homer</option>
+          <option value="trackviewer">trackviewer</option>
+        </select>
+      </li>
+      <!--<li>
+        <label for="method">method</label>
+        <select type="text" id="method" name="method">
+          <option value="HiCAR" selected>HiCAR</option>
+          <option value="HiChIP">HiChIP</option>
+          <option value="ChIA-PET">ChIA-PET</option>
+          <option value="PLAC-Seq">PLAC-Seq</option>
+        </select>
+      </li>
+      <li> <label for="a">A</label><input type="text" id="a" name="a"></li>-->
+  </ul>
+  </div>
+
+  <div class="alert border bg-light small">
+        <p>The command: </p>
+        <code id="code"></code>
+  </div>
+</div>
+
+<footer id="footer" class="footer"></footer>
+
+
+</body></html>
