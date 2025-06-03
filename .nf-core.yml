@@ -6,7 +6,7 @@ lint:
     - .github/workflows/branch.yml
     - .github/workflows/ci.yml
     - .github/ISSUE_TEMPLATE/bug_report.yml
-nf_core_version: 3.2.1
+nf_core_version: 3.3.1
 repository_type: pipeline
 template:
   author: Jianhong Ou, Yu Xiang, Yarui Diao
