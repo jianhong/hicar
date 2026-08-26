@@ -6,4 +6,6 @@ results/
 testing/
 testing*
 *.pyc
+.Rproj.user
+output/
 null/
