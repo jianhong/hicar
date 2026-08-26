@@ -797,7 +797,7 @@ workflow HICAR {
         ch_methods_description.collectFile(
             name: 'methods_description_mqc.yaml',
             sort: true
-        )
+        ))
 
       MULTIQC (
           ch_multiqc_files.collect(),
@@ -808,7 +808,8 @@ workflow HICAR {
           []
       )
 
-      emit:multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
+      emit:
+      multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
       versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }

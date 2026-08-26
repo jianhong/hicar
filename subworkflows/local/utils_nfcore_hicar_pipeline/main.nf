@@ -71,9 +71,10 @@ workflow PIPELINE_INITIALISATION {
     //
     // Create channel from input file provided through params.input
     //
+    def samplesheet_list = samplesheetToList(params.input, "assets/schema_input.json")
 
     Channel
-        .fromSamplesheet("input")
+        .fromList(samplesheet_list)
         .collect(flat: false, sort: true)
         .map{//assign technique replicate
             all_tech_eq_1 = true
