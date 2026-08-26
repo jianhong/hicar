@@ -87,7 +87,9 @@ def distance_normaize_core(sub, exp_bychrom, x, y, w):
 
 @njit
 def image_normalize(arr_2d):
-    arr_2d = (arr_2d - arr_2d.min()) / (arr_2d.max() - arr_2d.min())  # value range: [0,1]
+    arr_2d = (arr_2d - arr_2d.min()) / (
+        arr_2d.max() - arr_2d.min()
+    )  # value range: [0,1]
 
     return arr_2d
 
@@ -121,7 +123,18 @@ def distance_normalize(arr_pool, exp_bychrom, xi, yi, w):
 
 
 class Chromosome:
-    def __init__(self, M, model, raw_M=None, weights=None, lower=6, upper=300, cname="chrm", res=10000, width=5):
+    def __init__(
+        self,
+        M,
+        model,
+        raw_M=None,
+        weights=None,
+        lower=6,
+        upper=300,
+        cname="chrm",
+        res=10000,
+        width=5,
+    ):
         lower = max(lower, width + 1)
         upper = min(upper, M.shape[0] - 2 * width)
         # calculate expected values
@@ -140,7 +153,9 @@ class Chromosome:
 
         # lower down the memory usage
         R, C = M.nonzero()
-        validmask = np.isfinite(M.data) & (C - R > (-2 * width)) & (C - R < (upper + 2 * width))
+        validmask = (
+            np.isfinite(M.data) & (C - R > (-2 * width)) & (C - R < (upper + 2 * width))
+        )
         R, C, data = R[validmask], C[validmask], M.data[validmask]
         self.M = sparse.csr_matrix((data, (R, C)), shape=M.shape)
         self.get_candidate(lower, upper)
@@ -262,16 +277,29 @@ class Chromosome:
 def getargs():
     ## Construct an ArgumentParser object for command-line arguments
     parser = argparse.ArgumentParser(
-        description="""Unveil Hi-C Anchors and Peaks.""", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description="""Unveil Hi-C Anchors and Peaks.""",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     for i in subs[1:]:
-        i.add_argument("-r", "--resolution", help="Resolution in bp (default 10000)", type=int, default=10000)
+        i.add_argument(
+            "-r",
+            "--resolution",
+            help="Resolution in bp (default 10000)",
+            type=int,
+            default=10000,
+        )
     for i in subs[:-1]:
-        i.add_argument("-p", "--path", help="Path to a .cool URI string or a .hic file.")
+        i.add_argument(
+            "-p", "--path", help="Path to a .cool URI string or a .hic file."
+        )
 
     for i in subs[1:-1]:
-        i.add_argument("--balance", action="store_true", help="""Whether or not using the ICE/KR-balanced matrix.""")
+        i.add_argument(
+            "--balance",
+            action="store_true",
+            help="""Whether or not using the ICE/KR-balanced matrix.""",
+        )
 
     subchrom.add_argument(
         "-C",
@@ -291,9 +319,15 @@ def getargs():
     )
 
     for i in subs[2:-1]:
-        i.add_argument("-m", "--model", type=str, help="""Path to pickled model file.""")
         i.add_argument(
-            "-l", "--lower", type=int, default=6, help="""Lower bound of distance between loci in bins (default 6)."""
+            "-m", "--model", type=str, help="""Path to pickled model file."""
+        )
+        i.add_argument(
+            "-l",
+            "--lower",
+            type=int,
+            default=6,
+            help="""Lower bound of distance between loci in bins (default 6).""",
         )
         i.add_argument(
             "-u",
@@ -317,7 +351,11 @@ def getargs():
         help="""Only count reads with genomic distance (in base pairs) greater than this value. (default 0)""",
     )
 
-    subtrain.add_argument("-b", "--bedpe", help="""Path to the bedpe file containing positive training set.""")
+    subtrain.add_argument(
+        "-b",
+        "--bedpe",
+        help="""Path to the bedpe file containing positive training set.""",
+    )
     subtrain.add_argument(
         "-w",
         "--width",
@@ -336,7 +374,9 @@ def getargs():
     subtrain.add_argument("-O", "--output", help="Folder path to store trained models.")
 
     subpool.add_argument(
-        "-i", "--infile", help="""Path to the bedpe file outputted from score_chromosome or score_genome"""
+        "-i",
+        "--infile",
+        help="""Path to the bedpe file outputted from score_chromosome or score_genome""",
     )
     subpool.add_argument("-o", "--outfile", help="Output file name.")
     subpool.add_argument(
@@ -350,7 +390,8 @@ def getargs():
     ## Parse the command-line arguments
     commands = sys.argv[1:]
     if (not commands) or (
-        (commands[0] in ["train", "score_chromosome", "score_genome", "depth", "pool"]) and len(commands) == 1
+        (commands[0] in ["train", "score_chromosome", "score_genome", "depth", "pool"])
+        and len(commands) == 1
     ):
         commands.append("-h")
     args = parser.parse_args(commands)
@@ -360,9 +401,19 @@ def getargs():
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--resolution", help="Resolution in bp (default 10000)", type=int, default=10000)
+    parser.add_argument(
+        "-r",
+        "--resolution",
+        help="Resolution in bp (default 10000)",
+        type=int,
+        default=10000,
+    )
     parser.add_argument("-p", "--path", help="Path to a .cool URI string or file.")
-    parser.add_argument("--balance", action="store_true", help="""Whether or not using the ICE/KR-balanced matrix.""")
+    parser.add_argument(
+        "--balance",
+        action="store_true",
+        help="""Whether or not using the ICE/KR-balanced matrix.""",
+    )
     parser.add_argument(
         "-C",
         "--chroms",
@@ -373,12 +424,22 @@ def parse_args(args=None):
         'with numerical labels. "--chroms" with zero argument will include '
         'all chromosome data. (default "#" X)',
     )
-    parser.add_argument("-m", "--model", type=str, help="""Path to pickled model file.""")
     parser.add_argument(
-        "-l", "--lower", type=int, default=6, help="""Lower bound of distance between loci in bins (default 6)."""
+        "-m", "--model", type=str, help="""Path to pickled model file."""
     )
     parser.add_argument(
-        "-u", "--upper", type=int, default=300, help="""Upper bound of distance between loci in bins (default 300)."""
+        "-l",
+        "--lower",
+        type=int,
+        default=6,
+        help="""Lower bound of distance between loci in bins (default 6).""",
+    )
+    parser.add_argument(
+        "-u",
+        "--upper",
+        type=int,
+        default=300,
+        help="""Upper bound of distance between loci in bins (default 300).""",
     )
     parser.add_argument(
         "--minimum-prob",
@@ -410,7 +471,11 @@ def main(args=None):
     queue = []
     for key in chromosomes:
         chromlabel = key.lstrip("chr")
-        if (not args.chroms) or (chromlabel.isdigit() and "#" in args.chroms) or (chromlabel in args.chroms):
+        if (
+            (not args.chroms)
+            or (chromlabel.isdigit() and "#" in args.chroms)
+            or (chromlabel in args.chroms)
+        ):
             queue.append(key)
 
     for key in queue:

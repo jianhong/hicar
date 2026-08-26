@@ -40,15 +40,15 @@ color = none
 # between the Hi-C matrix and the TADs.
 overlay_previous = share-y
 
-    """.format(
-        matrix, tads
-    )
+    """.format(matrix, tads)
     return contents
 
 
 def parse_args(args=None):
     Description = "Create HiCAR TADS track ini file"
-    Epilog = """Example usage: python create_hicar_track_ini.py <COOLER_OUT> <TAD_BED>"""
+    Epilog = (
+        """Example usage: python create_hicar_track_ini.py <COOLER_OUT> <TAD_BED>"""
+    )
     argParser = argparse.ArgumentParser(description=Description, epilog=Epilog)
 
     ## REQUIRED PARAMETERS

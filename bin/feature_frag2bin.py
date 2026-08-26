@@ -14,10 +14,18 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-i", "--input", dest="infile", required=True, help="input file")
-    parser.add_argument("-b", "--bin_size", dest="bin_size", required=True, help="bin_size")
-    parser.add_argument("-g", "--genome_size", dest="g_size", required=True, help="genome_size")
-    parser.add_argument("-o", "--output", dest="outfile", required=True, help="output file")
+    parser.add_argument(
+        "-i", "--input", dest="infile", required=True, help="input file"
+    )
+    parser.add_argument(
+        "-b", "--bin_size", dest="bin_size", required=True, help="bin_size"
+    )
+    parser.add_argument(
+        "-g", "--genome_size", dest="g_size", required=True, help="genome_size"
+    )
+    parser.add_argument(
+        "-o", "--output", dest="outfile", required=True, help="output file"
+    )
     args = parser.parse_args()
 
     bin_size = args.bin_size.replace("Kb", "000")
@@ -38,9 +46,16 @@ def main():
         for line in f:
             feat = line.rstrip().split("\t")
             assert feat[2] in g_size, "%s is not in genome size files!" % feat[2]
-            assert int(feat[3]) <= g_size[feat[2]], "%d is larger than size of %s!" % (int(feat[3]), feat[2])
+            assert int(feat[3]) <= g_size[feat[2]], "%d is larger than size of %s!" % (
+                int(feat[3]),
+                feat[2],
+            )
             key = "\t".join([feat[2], str((int(feat[3]) // bin_size))])
-            value = (int(feat[4]), float(feat[5]), float(feat[6]))  # frag length,GC,mappability
+            value = (
+                int(feat[4]),
+                float(feat[5]),
+                float(feat[6]),
+            )  # frag length,GC,mappability
             try:
                 feature_frag[key].append(value)
             except KeyError:
@@ -56,7 +71,10 @@ def main():
                     # print("found")
                     xtmplen = list(set([i[0] for i in xtmp]))
                     gc = sum([i[1] for i in xtmp]) / len(xtmp)
-                    frag_len = sum([i for i in xtmplen if i < 1000]) + len([i for i in xtmplen if i >= 1000]) * 1000
+                    frag_len = (
+                        sum([i for i in xtmplen if i < 1000])
+                        + len([i for i in xtmplen if i >= 1000]) * 1000
+                    )
                     mappability = sum([i[2] for i in xtmp]) / len(xtmp)
                 except KeyError:
                     # print("not found")
@@ -65,7 +83,14 @@ def main():
                     mappability = 0
                 f.write(
                     "%s\t%d\t%d\t%d\t%.4f\t%.4f\n"
-                    % (chr_name, bin_num * bin_size, (bin_num + 1) * bin_size, frag_len, gc, mappability)
+                    % (
+                        chr_name,
+                        bin_num * bin_size,
+                        (bin_num + 1) * bin_size,
+                        frag_len,
+                        gc,
+                        mappability,
+                    )
                 )
 
 

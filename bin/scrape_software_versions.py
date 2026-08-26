@@ -14,8 +14,7 @@ for version_file in version_files:
     results[software] = version
 
 # Dump to YAML
-print(
-    """
+print("""
 id: 'software_versions'
 section_name: 'nf-core/hicar Software Versions'
 section_href: 'https://github.com/nf-core/hicar'
@@ -23,8 +22,7 @@ plot_type: 'html'
 description: 'are collected at run time from the software output.'
 data: |
     <dl class="dl-horizontal">
-"""
-)
+""")
 for k, v in sorted(results.items()):
     print("        <dt>{}</dt><dd><samp>{}</samp></dd>".format(k, v))
 print("    </dl>")

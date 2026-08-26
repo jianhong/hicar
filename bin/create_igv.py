@@ -60,8 +60,7 @@ def create_igv(ListFile, Genome, PublishDir):
             index = ""
             if len(ifile) > 2:
                 index = '"indexURL":"' + ifile[2] + '",'
-            fileList.append(
-                f"""
+            fileList.append(f"""
             {{
                 \"name\":\"{ifile[0]}\",
                 \"url\":\"{prefix}{ifile[1]}\",
@@ -70,8 +69,7 @@ def create_igv(ListFile, Genome, PublishDir):
                 \"format\":\"{fmt}\",
                 \"height\":50
             }}
-            """
-            )
+            """)
         else:
             break
             fin.close()
@@ -81,14 +79,10 @@ def create_igv(ListFile, Genome, PublishDir):
         \"genome\": \"{Genome}\",
         \"tracks\":[
     """
-    html = (
-        html
-        + ",".join(fileList)
-        + """
+    html = html + ",".join(fileList) + """
     ]
     };
     """
-    )
     return html
 
 
@@ -116,15 +110,19 @@ def wrap_html(contents):
 
 def parse_args(args=None):
     Description = "Create IGV file from a list of files."
-    Epilog = """Example usage: python create_igv.py <LIST_FILE> <GENOME> <PUBLISH_DIR>"""
+    Epilog = (
+        """Example usage: python create_igv.py <LIST_FILE> <GENOME> <PUBLISH_DIR>"""
+    )
     argParser = argparse.ArgumentParser(description=Description, epilog=Epilog)
 
     ## REQUIRED PARAMETERS
     argParser.add_argument(
-        "LIST_FILE", help="Tab-delimited file containing two columns i.e. samplename\tsignalfile. Header isnt required."
+        "LIST_FILE",
+        help="Tab-delimited file containing two columns i.e. samplename\tsignalfile. Header isnt required.",
     )
     argParser.add_argument(
-        "GENOME", help="Full path to genome fasta file or shorthand for genome available in UCSC e.g. hg19."
+        "GENOME",
+        help="Full path to genome fasta file or shorthand for genome available in UCSC e.g. hg19.",
     )
     argParser.add_argument(
         "PUBLISH_DIR",
@@ -135,7 +133,9 @@ def parse_args(args=None):
 
 def main(args=None):
     args = parse_args(args)
-    tracks = create_igv(ListFile=args.LIST_FILE, Genome=args.GENOME, PublishDir=args.PUBLISH_DIR)
+    tracks = create_igv(
+        ListFile=args.LIST_FILE, Genome=args.GENOME, PublishDir=args.PUBLISH_DIR
+    )
     html = wrap_html(tracks)
     out = open("index.html", "a")
     out.write(html)

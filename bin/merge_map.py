@@ -15,8 +15,12 @@ import argparse
 def main():
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("-c", "--cut", dest="cut", required=True, help="RE cut file")
-    parser.add_argument("-m", "--map", dest="map", required=True, help="mapability file")
-    parser.add_argument("-o", "--output", dest="outfile", required=True, help="output file")
+    parser.add_argument(
+        "-m", "--map", dest="map", required=True, help="mapability file"
+    )
+    parser.add_argument(
+        "-o", "--output", dest="outfile", required=True, help="output file"
+    )
     args = parser.parse_args()
 
     mapability = {}
@@ -31,7 +35,9 @@ def main():
                 tmp = line.rstrip().split("\t")
                 key = tmp[2] + "_" + tmp[0]
                 try:
-                    fo.write("%s\n" % "\t".join([str(i) for i in tmp + [mapability[key]]]))
+                    fo.write(
+                        "%s\n" % "\t".join([str(i) for i in tmp + [mapability[key]]])
+                    )
                 except KeyError:
                     sys.exit("Frag %s cannot be found in mapability file." % key)
 

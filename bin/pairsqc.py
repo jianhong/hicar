@@ -76,7 +76,11 @@ class CisTransStat(object):
         fout.write("Cis reads (>=20kb)\t{:,}\n".format(self.cis))
         fout.write("Trans reads\t{:,}\n".format(self.trans))
         fout.write("Cis/Trans ratio\t{:.3f}\n".format(self.cis_to_trans))
-        fout.write("% Long-range intrachromosomal reads\t{:.3f}\n".format(self.p_long_range_intra))
+        fout.write(
+            "% Long-range intrachromosomal reads\t{:.3f}\n".format(
+                self.p_long_range_intra
+            )
+        )
 
 
 class SeparationStat(object):
@@ -110,7 +114,9 @@ class SeparationStat(object):
 
     def increment(self, orientation, chrom):
         """increment both count_per_ori and count_per_chr together, so that we don't count the read on a weird chromosome for orientation and vice versa"""
-        if orientation in self.orientation_list:  # skip if not included in orientation list
+        if (
+            orientation in self.orientation_list
+        ):  # skip if not included in orientation list
             if chrom in self.chr_list:  # skip if not included in chr list
                 self.count_per_ori[orientation] += 1
                 self.count_per_chr[chrom] += 1
@@ -140,12 +146,20 @@ class SeparationStat(object):
         """
         for chrom in self.chr_list:
             self.allpossible_count_per_chr[chrom] = self.gs.chrsize[chrom] - 10**s - 1
-            if self.allpossible_count_per_chr[chrom] <= 0:  # the chromosome is smaller than s
+            if (
+                self.allpossible_count_per_chr[chrom] <= 0
+            ):  # the chromosome is smaller than s
                 self.allpossible_count_per_chr[chrom] = 0
                 self.prob_per_chr[chrom] = 0
             else:
-                self.prob_per_chr[chrom] = self.count_per_chr[chrom] / self.allpossible_count_per_chr[chrom] / bin_size
-                self.log10prob_per_chr[chrom] = math.log10(self.prob_per_chr[chrom] + self.pseudocount)
+                self.prob_per_chr[chrom] = (
+                    self.count_per_chr[chrom]
+                    / self.allpossible_count_per_chr[chrom]
+                    / bin_size
+                )
+                self.log10prob_per_chr[chrom] = math.log10(
+                    self.prob_per_chr[chrom] + self.pseudocount
+                )
 
     def calculate_contact_probability(self, s, bin_size):
         """Calculate contact probability for a given separation distance and bin size
@@ -161,21 +175,37 @@ class SeparationStat(object):
     def print_content(self, fout, bin_mid, bin_range_string):
         print_str = "{:.3f}\t".format(bin_mid)
         print_str += "{}\t".format(bin_range_string)
-        print_str += "\t".join("{}".format(self.count_per_ori[ori]) for ori in self.orientation_list)
+        print_str += "\t".join(
+            "{}".format(self.count_per_ori[ori]) for ori in self.orientation_list
+        )
         print_str += "\t{}\t".format(self.sumcount)
-        print_str += "\t".join("{:.3f}".format(self.log10count_per_ori[ori]) for ori in self.orientation_list)
+        print_str += "\t".join(
+            "{:.3f}".format(self.log10count_per_ori[ori])
+            for ori in self.orientation_list
+        )
         print_str += "\t{:.3f}\t".format(self.log10sumcount)
-        print_str += "\t".join("{:.3f}".format(self.pcount_per_ori[ori]) for ori in self.orientation_list)
+        print_str += "\t".join(
+            "{:.3f}".format(self.pcount_per_ori[ori]) for ori in self.orientation_list
+        )
         print_str += "\t{:.3E}".format(self.allpossible_sumcount)
         print_str += "\t{:.3E}".format(self.prob)
         print_str += "\t{:.3f}\t".format(self.log10prob)
-        print_str += "\t".join("{:.3E}".format(self.count_per_chr[chr]) for chr in self.chr_list)
+        print_str += "\t".join(
+            "{:.3E}".format(self.count_per_chr[chr]) for chr in self.chr_list
+        )
         print_str += "\t"
-        print_str += "\t".join("{:.3E}".format(self.allpossible_count_per_chr[chr]) for chr in self.chr_list)
+        print_str += "\t".join(
+            "{:.3E}".format(self.allpossible_count_per_chr[chr])
+            for chr in self.chr_list
+        )
         print_str += "\t"
-        print_str += "\t".join("{:.3E}".format(self.prob_per_chr[chr]) for chr in self.chr_list)
+        print_str += "\t".join(
+            "{:.3E}".format(self.prob_per_chr[chr]) for chr in self.chr_list
+        )
         print_str += "\t"
-        print_str += "\t".join("{:.3f}".format(self.log10prob_per_chr[chr]) for chr in self.chr_list)
+        print_str += "\t".join(
+            "{:.3f}".format(self.log10prob_per_chr[chr]) for chr in self.chr_list
+        )
         print_str += "\n"
         fout.write(print_str)
 
@@ -214,7 +244,9 @@ class DistanceBin(object):
         self.range = range(0, self.max_bin_number + 1)
 
     def get_bin_size(self, bin_mid):
-        return 10 ** (bin_mid + self.log_binsize / 2) - 10 ** (bin_mid - self.log_binsize / 2)
+        return 10 ** (bin_mid + self.log_binsize / 2) - 10 ** (
+            bin_mid - self.log_binsize / 2
+        )
 
     def get_bin_mid(self, bin_number):
         """return midpoint of a bin at log scale"""
@@ -306,7 +338,9 @@ def distance_histogram(
             it = tb.querys2D(chrp)
             for x in it:
                 distance, orientation = get_distance_and_orientation(x, cols)
-                if orientation not in orientation_list:  # for some exceptional cases like '4' in merged_nodup
+                if (
+                    orientation not in orientation_list
+                ):  # for some exceptional cases like '4' in merged_nodup
                     continue
 
                 # remove zero distance, count.
@@ -338,7 +372,9 @@ def distance_histogram(
         for bin_number in bins.range:
             bin_mid = bins.get_bin_mid(bin_number)
             if bin_mid <= bins.max_logdistance and bin_mid >= bins.min_logdistance:
-                ss[bin_number].print_content(f, bin_mid, bins.get_bin_range_string(bin_mid))
+                ss[bin_number].print_content(
+                    f, bin_mid, bins.get_bin_range_string(bin_mid)
+                )
 
 
 if __name__ == "__main__":
@@ -347,12 +383,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="QC for Pairs")
     parser.add_argument("-p", "--pairs", help="input pairs file")
     parser.add_argument("-c", "--chrsize", help="input chromsize file")
-    parser.add_argument("-t", "--input_type", help="input file type (P:pairs, M:merged_nodups, OM:old_merged_nodups)")
     parser.add_argument(
-        "-O", "--outdir_prefix", help="prefix of output directory (output directory name will be <outdir_prefix>_report"
+        "-t",
+        "--input_type",
+        help="input file type (P:pairs, M:merged_nodups, OM:old_merged_nodups)",
     )
     parser.add_argument(
-        "-s", "--sample_name", help="sample name to be used as the file prefix and in the report (do not include space)"
+        "-O",
+        "--outdir_prefix",
+        help="prefix of output directory (output directory name will be <outdir_prefix>_report",
+    )
+    parser.add_argument(
+        "-s",
+        "--sample_name",
+        help="sample name to be used as the file prefix and in the report (do not include space)",
     )
     parser.add_argument(
         "-M",
@@ -388,8 +432,12 @@ if __name__ == "__main__":
     else:
         sample_name = "sample"
 
-    CIS_TRANS_OUT_FILE_PATH = outdir + "/" + sample_name + "." + CIS_TRANS_OUT_FILE_SUFFIX
-    PLOT_TABLE_OUT_FILE_PATH = outdir + "/" + sample_name + "." + PLOT_TABLE_OUT_FILE_SUFFIX
+    CIS_TRANS_OUT_FILE_PATH = (
+        outdir + "/" + sample_name + "." + CIS_TRANS_OUT_FILE_SUFFIX
+    )
+    PLOT_TABLE_OUT_FILE_PATH = (
+        outdir + "/" + sample_name + "." + PLOT_TABLE_OUT_FILE_SUFFIX
+    )
 
     # max_logdistance
     if args.max_logdistance:
