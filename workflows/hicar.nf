@@ -4,6 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
+include { PREPARE_GENOME         } from '../subworkflows/local/prepare_genome/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -34,6 +35,24 @@ workflow HICAR {
     //
     FASTQC(ch_samplesheet)
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
+
+    //
+    // SUBWORKFLOW: Prepare genome
+    //
+    PREPARE_GENOME(
+        params.genome,
+        params.fasta,
+        params.gtf,
+        params.gff,
+        params.bwa_index,
+        params.read_length,
+        params.macs_gsize,
+        params.ucscname,
+        params.blacklist,
+        params.mappability,
+        params.enzyme
+    )
+    ch_versions = ch_versions.mix(PREPARE_GENOME.out.versions)
 
     //
     // Collate and save software versions

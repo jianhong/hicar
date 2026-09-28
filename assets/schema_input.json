@@ -13,6 +13,13 @@
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
+            "replicate": {
+                "type": "integer",
+                "minimum": 1,
+                "errorMessage": "Replicate number must be provided and be a positive integer",
+                "pattern": "^\\d+$",
+                "meta": ["id"]
+            },
             "fastq_1": {
                 "type": "string",
                 "format": "file-path",
@@ -28,6 +35,6 @@
                 "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["sample", "replicate", "fastq_1", "fastq_2"]
     }
 }

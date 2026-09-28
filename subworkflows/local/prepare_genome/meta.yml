@@ -1,0 +1,133 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "prepare_genome"
+## TODO nf-core: Add a description of the subworkflow and list keywords
+description: Create reference genome files for HiCAR analysis, including fasta, gtf, bwa index, chromosome sizes, and digest genome files.
+keywords:
+  - sort
+  - bam
+  - sam
+  - cram
+## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
+components:
+  - samtools/sort
+  - samtools/index
+## TODO nf-core: List all of the channels used as input with a description and their structure
+input:
+  - genome:
+      type: string
+      description: |
+        Genome name, e.g. hg38, mm10, dm6
+        Structure: [ val(genome) ]
+  - fasta:
+      type: file
+      description: |
+        fasta file of the genome
+        Structure: [ val(fasta) ] 
+      pattern: "*.fa"
+  - gtf:
+      type: file
+      description: |
+        gtf file of the genome
+        Structure: [ val(gtf) ] 
+      pattern: "*.gtf"
+  - gff:
+      type: file
+      description: |
+        gff file of the genome
+        Structure: [ val(gff) ] 
+      pattern: "*.gff"
+  - bwa_index:
+      type: file
+      description: |
+        bwa index of the genome
+        Structure: [ val(bwa_index) ] 
+      pattern: "*.bwt"
+  - read_length:
+      type: integer
+      description: |
+        Length of the reads
+        Structure: [ val(read_length) ]
+  - macs_gsize:
+      type: string
+      description: |
+        Effective genome size for MACS
+        Structure: [ val(macs_gsize) ]
+  - ucscname:
+      type: string
+      description: |
+        UCSC genome name
+        Structure: [ val(ucscname) ]
+  - blacklist:
+      type: file
+      description: |
+        Blacklist file
+        Structure: [ val(blacklist) ] 
+      pattern: "*.bed"
+  - mappability:
+      type: file
+      description: |
+        Mappability file
+        Structure: [ val(mappability) ]
+      pattern: "*.bw"
+  - enzyme:
+      type: string
+      description: |
+        Enzyme name
+        Structure: [ val(enzyme) ]
+## TODO nf-core: List all of the channels used as output with a descriptions and their structure
+output:
+  - fasta:
+      type: file
+      description: |
+        Channel containing the genome fasta file
+        Structure: [ val(meta), path(fasta) ]
+  - gtf:
+      type: file
+      description: |
+        Channel containing the genome gtf file
+        Structure: [ val(meta), path(gtf) ]
+  - bwa_index: 
+      type: file
+      description: |
+        Channel containing the genome bwa index files
+        Structure: [ val(meta), path(bwa_index) ]
+  - chrom_sizes:
+      type: file
+      description: |
+        Channel containing the genome chromosome sizes file
+        Structure: [ val(meta), path(chrom_sizes) ]
+  - gsize:
+      type: string
+      description: |
+        Channel containing the genome size
+        Structure: [ val(meta), val(gsize) ]
+  - ucscname:
+      type: string
+      description: |
+        Channel containing the genome UCSC name
+        Structure: [ val(meta), val(ucscname) ]
+  - blacklist:
+      type: file
+      description: |
+        Channel containing the genome blacklist file  
+        Structure: [ val(meta), path(blacklist) ] 
+  - mappability:
+      type: file
+      description: |
+        Channel containing the genome mappability file
+        Structure: [ val(meta), path(mappability) ]
+  - sites:
+      type: string
+      description: |
+        Channel containing the genome enzyme name
+        Structure: [ val(meta), val(enzyme) ]
+  - versions:
+      type: file
+      description: |
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+authors:
+  - "@jianhongou"
+maintainers:
+  - "@jianhongou"
