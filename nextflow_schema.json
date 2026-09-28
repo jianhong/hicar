@@ -155,6 +155,46 @@
                 }
             }
         },
+        "experiment_config_options": {
+            "title": "Experiment config options",
+            "type": "object",
+            "fa_icon": "fas fa-vial",
+            "description": "Parameters used to describe the experiment. These should not be edited.",
+            "help_text": "The nf-core pipeline framework uses a handful of pipeline parameters to describe the experiment. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline.",
+            "properties": {
+                "enzyme": {
+                    "type": "string",
+                    "description": "Specifies that the cutting position has to be using.",
+                    "fa_icon": "fas fa-vial",
+                    "help_text": "Default CviQI digestion. Available enzymes are MboI, DpnII, BglII, HindIII, MseI, and CviQI.",
+                    "default": "CviQI"
+                },
+                "restriction_sites": {
+                    "type": "string",
+                    "description": "Specifies that the cutting sequence has to be using.",
+                    "fa_icon": "fas fa-cut",
+                    "help_text": "It will be automatically assigned by the enzyme inputed.",
+                    "hidden": true,
+                    "default": "^TAC"
+                },
+                "restriction_sites_cut_off": {
+                    "type": "number",
+                    "description": "Specifies that the cutoff value used for mappability filter.",
+                    "fa_icon": "fas fa-ruler-horizontal",
+                    "help_text": "Default is 0.5. It is the average over just covered bases.",
+                    "hidden": false,
+                    "default": 0.5
+                },
+                "read_length": {
+                    "type": "integer",
+                    "description": "Specifies that the read length has to be using.",
+                    "fa_icon": "fas fa-dna",
+                    "help_text": "Default is 150. It is used for mappability filter.",
+                    "hidden": false,
+                    "default": 150
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -312,6 +352,9 @@
         },
         {
             "$ref": "#/$defs/reference_genome_options"
+        },
+        {
+            "$ref": "#/$defs/experiment_config_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"
