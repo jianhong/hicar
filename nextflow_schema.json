@@ -78,6 +78,80 @@
                     "fa_icon": "fas fa-ban",
                     "hidden": true,
                     "default": "s3://ngi-igenomes/igenomes/"
+                },
+                "save_reference": {
+                    "type": "boolean",
+                    "description": "Save reference genome index files for future runs.",
+                    "fa_icon": "fas fa-save",
+                    "hidden": true,
+                    "help_text": "If you are using a custom reference genome, the pipeline will generate the required BWA index files automatically. If you want to save these for future runs, set this parameter to `true`. The index files will be saved in the same directory as the FASTA file."
+                },
+                "bwa_index": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/plain",
+                    "description": "Path to BWA index file.",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
+                    "fa_icon": "far fa-file-code"
+                },
+                "gtf": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.gtf(\\.gz)?$",
+                    "description": "Path to GTF annotation file.",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a GTF file available, you can download one from Ensembl or UCSC. The GTF file is used for gene annotation and will be used in the MultiQC report.",
+                    "fa_icon": "far fa-file-code"
+                },
+                "gff": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.gff(3)?(\\.gz)?$",
+                    "description": "Path to GFF annotation file.",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a GFF file available, you can download one from Ensembl or UCSC. The GFF file is used for gene annotation and will be used in the MultiQC report.",
+                    "fa_icon": "far fa-file-code"
+                },
+                "mappability": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.(bw|bigWig)$",
+                    "description": "Path to mappability bigWig file.",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a mappability bigWig file available, you can download one from UCSC. The mappability file is used for quality control and will be used in the MultiQC report.",
+                    "fa_icon": "far fa-file-code"
+                },
+                "blacklist": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "mimetype": "text/plain",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "description": "Path to blacklist BED file.",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a blacklist BED file available, you can download one from ENCODE. The blacklist file is used for quality control and will be used in the MultiQC report.",
+                    "fa_icon": "far fa-file-code"
+                },
+                "macs_gsize": {
+                    "type": ["integer", "string"],
+                    "description": "Genome size for MACS2 peak calling.",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a genome size available, you can find it in the UCSC Genome Browser or Ensembl. The genome size is used for peak calling and will be used in the MultiQC report.",
+                    "fa_icon": "fas fa-dna"
+                },
+                "ucscname": {
+                    "type": "string",
+                    "description": "UCSC genome name.",
+                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a UCSC genome name available, you can find it in the UCSC Genome Browser. The UCSC genome name is used for quality control and will be used in the MultiQC report.",
+                    "fa_icon": "fas fa-dna"
+                },
+                "publish_mappability": {
+                    "type": "boolean",
+                    "description": "Publish mappability bigWig file to output directory.",
+                    "help_text": "If you want to save the mappability bigWig file to the output directory, set this parameter to `true`. The mappability file will be used for quality control and will be used in the MultiQC report.",
+                    "fa_icon": "fas fa-file-upload"
                 }
             }
         },
