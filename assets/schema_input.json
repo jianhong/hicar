@@ -13,6 +13,12 @@
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
+            "replicate": {
+                "type": "integer",
+                "minimum": 1,
+                "errorMessage": "Replicate must be a positive integer",
+                "meta": ["replicate"]
+            },
             "fastq_1": {
                 "type": "string",
                 "format": "file-path",
@@ -34,6 +40,6 @@
             }
 
         },
-        "required": ["sample", "fastq_1", "fastq_2"]
+        "required": ["sample", "replicate", "fastq_1", "fastq_2"]
     }
 }
