@@ -135,6 +135,15 @@
                     "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a blacklist BED file available, you can download one from ENCODE. The blacklist file is used for quality control and will be used in the MultiQC report.",
                     "fa_icon": "far fa-file-code"
                 },
+                 "gene_bed": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/plain",
+                    "fa_icon": "fas fa-file-medical-alt",
+                     "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "description": "Path to gene bed file.",
+                    "help_text": "Path to BED file containing gene intervals. This will be created from the GTF file if not specified."
+                },
                 "macs_gsize": {
                     "type": ["integer", "string"],
                     "description": "Genome size for MACS2 peak calling.",
