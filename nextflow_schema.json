@@ -140,6 +140,7 @@
                     "format": "file-path",
                     "mimetype": "text/plain",
                     "fa_icon": "fas fa-file-medical-alt",
+                     "pattern": "^\\S+\\.bed(\\.gz)?$",
                     "description": "Path to gene bed file.",
                     "help_text": "Path to BED file containing gene intervals. This will be created from the GTF file if not specified."
                 },
