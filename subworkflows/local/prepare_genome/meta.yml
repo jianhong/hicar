@@ -27,58 +27,57 @@ input:
   - genome:
       type: string
       description: |
-        Genome name, e.g. hg38, mm10, dm6
+        Genome name, e.g. hg38, mm10, dm6. Used to look up the UCSC name if ucscname is not provided.
         Structure: [ val(genome) ]
   - fasta:
-      type: file
+      type: string
       description: |
-        fasta file of the genome
-        Structure: [ val(fasta) ] 
-      pattern: "*.fa"
+        fasta file of the genome. May be gzipped
+        Structure: [ val(fasta) ]
+      pattern: "*.{fa,fasta,fa.gz,fasta.gz}"
   - gtf:
-      type: file
+      type: string
       description: |
-        gtf file of the genome
-        Structure: [ val(gtf) ] 
-      pattern: "*.gtf"
+        gtf file of the genome. May be gzipped and takes priority over gff.
+        Structure: [ val(gtf) ]
+      pattern: "*.{gtf,gtf.gz}"
   - gff:
-      type: file
+      type: string
       description: |
-        gff file of the genome
-        Structure: [ val(gff) ] 
-      pattern: "*.gff"
+        gff file of the genome. May be gzipped and only occurs if gtf is not provided.
+        Structure: [ val(gff) ]
+      pattern: "*.{gff,gff3,gff.gz,gff3.gz}"
   - bwa_index:
       type: file
       description: |
-        bwa index of the genome
-        Structure: [ val(bwa_index) ] 
-      pattern: "*.bwt"
+        bwa index of the genome. Built from fasta if not provided
+        Structure: [ path(bwa_index) ]
   - read_length:
       type: integer
       description: |
-        Length of the reads
+        Length of the reads.
         Structure: [ val(read_length) ]
   - macs_gsize:
       type: string
       description: |
-        Effective genome size for MACS
+        Effective genome size for MACS. Estimated with khmer if not provided.
         Structure: [ val(macs_gsize) ]
   - ucscname:
       type: string
       description: |
-        UCSC genome name
+        UCSC genome name. Looked up from genome if not provided.
         Structure: [ val(ucscname) ]
   - blacklist:
-      type: file
+      type: string
       description: |
-        Blacklist file
-        Structure: [ val(blacklist) ] 
-      pattern: "*.bed"
+        Blacklist file. May be gzipped.
+        Structure: [ val(blacklist) ]
+      pattern: "*.{bed,bed.gz}"
   - mappability:
       type: file
       description: |
-        Mappability file
-        Structure: [ val(mappability) ]
+        Mappability file. Computed with genmap if not provided
+        Structure: [ path(mappability) ]
       pattern: "*.bw"
   - enzyme:
       type: string
