@@ -97,16 +97,36 @@ output:
       description: |
         Channel containing the genome gtf file
         Structure: [ val(meta), path(gtf) ]
-  - bwa_index: 
+  - gene_bed:
       type: file
       description: |
-        Channel containing the genome bwa index files
-        Structure: [ val(meta), path(bwa_index) ]
+        Channel containing the gene_bed file
+        Structure: [ val(meta), path(bed) ]
   - chrom_sizes:
       type: file
       description: |
         Channel containing the genome chromosome sizes file
         Structure: [ val(meta), path(chrom_sizes) ]
+    - blacklist:
+      type: file
+      description: |
+        Channel containing the genome blacklist file  
+        Structure: [ val(meta), path(blacklist) ]
+  - bed:
+      type: file
+      description: |
+        Channel containing the filtered gene_bed file
+        Structure: [ val(meta), path(bed) ]
+  - digest_genome:
+      type: file
+      description: |
+        Channel containing digested gene_bed file
+        Structure: [ val(meta), path(bed) ]
+  - bwa_index: 
+      type: file
+      description: |
+        Channel containing the genome bwa index files
+        Structure: [ val(meta), path(bwa_index) ]
   - gsize:
       type: string
       description: |
@@ -117,11 +137,12 @@ output:
       description: |
         Channel containing the genome UCSC name
         Structure: [ val(meta), val(ucscname) ]
-  - blacklist:
+   - versions:
       type: file
       description: |
-        Channel containing the genome blacklist file  
-        Structure: [ val(meta), path(blacklist) ] 
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
   - mappability:
       type: file
       description: |
