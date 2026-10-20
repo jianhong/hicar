@@ -1,12 +1,14 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
 name: "prepare_genome"
-## TODO nf-core: Add a description of the subworkflow and list keywords
 description: Create reference genome files for HiCAR analysis, including fasta, gtf, bwa index, chromosome sizes, and digest genome files.
 keywords:
-  - sort
-  - bam
-  - sam
-  - cram
+  - genome
+  - reference
+  - index
+  - bwa
+  - chromosome sizes
+  - digest
+  - hicar
 ## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
 components:
   - samtools/sort
