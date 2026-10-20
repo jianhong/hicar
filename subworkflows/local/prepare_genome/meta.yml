@@ -153,12 +153,6 @@ output:
       description: |
         Channel containing the genome enzyme name
         Structure: [ val(meta), val(enzyme) ]
-  - versions:
-      type: file
-      description: |
-        File containing software versions
-        Structure: [ path(versions.yml) ]
-      pattern: "versions.yml"
 authors:
   - "@jianhongou"
 maintainers:
