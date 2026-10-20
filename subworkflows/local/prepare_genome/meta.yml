@@ -13,6 +13,15 @@ keywords:
 components:
   - samtools/sort
   - samtools/index
+  - gtf2bed
+  - genmap/index
+  - recutsite
+  - genome/chromsizes
+  - genmap/mappability
+  - cooler/digest
+  - genome/filter
+  - ucsc/wigtobigwig
+  - bedtools/sort
 ## TODO nf-core: List all of the channels used as input with a description and their structure
 input:
   - genome:
