@@ -60,7 +60,7 @@ input:
   - macs_gsize:
       type: string
       description: |
-        Effective genome size for MACS. Estimated with khmer if not provided.
+        Effective genome size for MACS. Several precompiled parameters can be used (e.g., GRCh37 (human), GRCm37 (mouse)). Estimated with khmer if not provided. Visit DeepTools for full list of precompiled parameters: https://deeptools.readthedocs.io/en/develop/content/feature/effectiveGenomeSize.html
         Structure: [ val(macs_gsize) ]
   - ucscname:
       type: string
