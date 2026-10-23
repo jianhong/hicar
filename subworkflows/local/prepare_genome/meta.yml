@@ -70,7 +70,7 @@ input:
   - blacklist:
       type: string
       description: |
-        Blacklist file. May be gzipped.
+        Blacklist file. Contains blacklisted chromosome regions to be filtered out. May be gzipped. 
         Structure: [ val(blacklist) ]
       pattern: "*.{bed,bed.gz}"
   - mappability:
