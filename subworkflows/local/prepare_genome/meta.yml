@@ -65,7 +65,7 @@ input:
   - ucscname:
       type: string
       description: |
-        UCSC genome name. Looked up from genome if not provided.
+        UCSC assembly name (e.g. hg38, mm10), used for annotation in the downstream R scripts. Looked up from genome if not provided.
         Structure: [ val(ucscname) ]
   - blacklist:
       type: string
