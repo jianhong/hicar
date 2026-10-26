@@ -27,7 +27,7 @@ input:
   - genome:
       type: string
       description: |
-        Genome name, e.g. hg38, mm10, dm6. Used to look up the UCSC name if ucscname is not provided.
+        AWS iGenomes reference ID, as given to --genome (e.g. GRCh37, GRCh38, hg38, mm10). Must match a key in conf/igenomes.config, which the pipeline uses to fill in reference files such as fasta, gtf, and bwa index. In this subworkflow it is only used to look up the UCSC name if ucscname is not provided.
         Structure: [ val(genome) ]
   - fasta:
       type: string
