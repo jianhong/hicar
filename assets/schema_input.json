@@ -16,9 +16,9 @@
             "replicate": {
                 "type": "integer",
                 "minimum": 1,
-                "errorMessage": "Replicate number must be provided and be a positive integer",
                 "pattern": "^\\d+$",
-                "meta": ["id"]
+                "errorMessage": "Replicate must be a positive integer",
+                "meta": ["replicate"]
             },
             "fastq_1": {
                 "type": "string",
@@ -33,7 +33,13 @@
                 "exists": true,
                 "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
                 "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+            },
+            "techniquereplicate": {
+                "type": "integer",
+                "default": 1,
+                "meta": ["techniquereplicate"]
             }
+
         },
         "required": ["sample", "replicate", "fastq_1", "fastq_2"]
     }
