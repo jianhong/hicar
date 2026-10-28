@@ -106,7 +106,7 @@ output:
       description: |
         Channel containing the genome chromosome sizes file
         Structure: [ val(meta), path(chrom_sizes) ]
-    - blacklist:
+  - blacklist:
       type: file
       description: |
         Channel containing the genome blacklist file  
@@ -136,7 +136,7 @@ output:
       description: |
         Channel containing the genome UCSC name
         Structure: [ val(meta), val(ucscname) ]
-   - versions:
+  - versions:
       type: file
       description: |
         File containing software versions
