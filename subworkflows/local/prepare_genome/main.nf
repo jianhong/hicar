@@ -27,7 +27,6 @@ workflow PREPARE_GENOME {
     enzyme       // string or null
 
     main:
-    ch_versions = Channel.empty()
 
     // FASTA
     ch_fasta_in = Channel.value([ [id: 'fasta'], file(fasta, checkIfExists: true) ])
@@ -55,7 +54,6 @@ workflow PREPARE_GENOME {
         }
         GFFREAD(ch_gff_in)   // add the fasta input if your module version requires it
         ch_gtf = GFFREAD.out.gtf
-        ch_versions = ch_versions.mix(GFFREAD.out.versions)
     } else {
         ch_gtf = Channel.empty()
     }
@@ -66,12 +64,10 @@ workflow PREPARE_GENOME {
     } else {
         BWA_INDEX(ch_fasta)
         ch_bwa_index = BWA_INDEX.out.index
-        ch_versions = ch_versions.mix(BWA_INDEX.out.versions_bwa)
     }
 
     // Chromosome sizes and fai
     SAMTOOLS_FAIDX(ch_fasta.map { [it[0], it[1], []] }, true)
-    ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions_samtools)
 
 
     // Prepare ucsc annotation name
@@ -95,7 +91,6 @@ workflow PREPARE_GENOME {
     } else {
         KHMER_UNIQUEKMERS(ch_fasta.map { it[1] }, read_length)
         ch_gsize = KHMER_UNIQUEKMERS.out.kmers.map { it.text.trim() }
-        ch_versions = ch_versions.mix(KHMER_UNIQUEKMERS.out.versions)
     }
 
     // Blacklist
@@ -120,7 +115,6 @@ workflow PREPARE_GENOME {
         ch_mappability = UCSC_WIGTOBIGWIG(
             GENMAP_MAPPABILITY.out.bedgraph
         )
-        ch_versions = ch_versions.mix(GENMAP_INDEX.out.versions, GENMAP_MAPPABILITY.out.versions, UCSC_WIGTOBIGWIG.out.versions)
     }
 
     /*
@@ -128,16 +122,14 @@ workflow PREPARE_GENOME {
      */
     digest_genome_bed = COOLER_DIGEST (
         ch_fasta.map { it[1] },
-        SAMTOOLS_FAIDX.out.sizes,
+        SAMTOOLS_FAIDX.out.sizes.map { it[1] },
         params.enzyme
     ).bed
-    ch_versions = ch_versions.mix(COOLER_DIGEST.out.versions_cooler)
 
     /*
      * get enzyme cut site and position for function maps:cut or enzyme_cut
      */
     RE_CUTSITE ( params.enzyme )
-    ch_versions = ch_versions.mix(RE_CUTSITE.out.versions)
 
     emit:
     fasta         = ch_fasta
@@ -150,5 +142,4 @@ workflow PREPARE_GENOME {
     mappability   = ch_mappability
     digest_genome = digest_genome_bed
     sites         = RE_CUTSITE.out.site
-    versions  = ch_versions
 }

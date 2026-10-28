@@ -1,0 +1,119 @@
+{
+    "sarscov2 - fastq - single-end - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": true
+                    },
+                    "test.trim.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": true
+                    },
+                    "test.cutadapt.log:md5,d41d8cd98f00b204e9800998ecf8427e"
+                ]
+            ],
+            {
+                "versions_cutadapt": [
+                    [
+                        "CUTADAPT",
+                        "cutadapt",
+                        "5.2"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2025-12-11T12:48:07.964157954",
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.2"
+        }
+    },
+    "sarscov2 - fastq - paired-end": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false
+                    },
+                    [
+                        "test_1.trim.fastq.gz:md5,4161df271f9bfcd25d5845a1e220dbec",
+                        "test_2.trim.fastq.gz:md5,2ebae722295ea66d84075a3b042e2b42"
+                    ]
+                ]
+            ],
+            [
+                "",
+                "=== Summary ===",
+                "",
+                "Total read pairs processed:                100",
+                "Pairs written (passing filters):           100 (100.0%)",
+                "",
+                "Total basepairs processed:        27,645 bp",
+                "  Read 1:        13,897 bp",
+                "  Read 2:        13,748 bp",
+                "Total written (filtered):         27,645 bp (100.0%)",
+                "  Read 1:        13,897 bp",
+                "  Read 2:        13,748 bp"
+            ],
+            {
+                "versions_cutadapt": [
+                    [
+                        "CUTADAPT",
+                        "cutadapt",
+                        "5.2"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-16T15:15:50.644376",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    },
+    "sarscov2 - fastq - single-end": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": true
+                    },
+                    "test.trim.fastq.gz:md5,4161df271f9bfcd25d5845a1e220dbec"
+                ]
+            ],
+            [
+                "",
+                "=== Summary ===",
+                "",
+                "Total reads processed:                     100",
+                "Reads written (passing filters):           100 (100.0%)",
+                "",
+                "Total basepairs processed:        13,897 bp",
+                "Total written (filtered):         13,897 bp (100.0%)"
+            ],
+            {
+                "versions_cutadapt": [
+                    [
+                        "CUTADAPT",
+                        "cutadapt",
+                        "5.2"
+                    ]
+                ]
+            }
+        ],
+        "timestamp": "2026-10-16T15:15:32.954888",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.04.6"
+        }
+    }
+}
