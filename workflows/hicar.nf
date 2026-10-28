@@ -5,7 +5,7 @@
 */
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { PREPARE_GENOME         } from '../subworkflows/local/prepare_genome/main'
-include { CUTADAPT               } from '../modules/nf-core/cutadapt/main'   
+include { CUTADAPT               } from '../modules/nf-core/cutadapt/main'
 include { BWA_MEM                } from '../modules/nf-core/bwa/mem/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'

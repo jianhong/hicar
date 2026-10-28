@@ -70,7 +70,7 @@ input:
   - blacklist:
       type: string
       description: |
-        Blacklist file. Contains blacklisted chromosome regions to be filtered out. May be gzipped. 
+        Blacklist file. Contains blacklisted chromosome regions to be filtered out. May be gzipped.
         Structure: [ val(blacklist) ]
       pattern: "*.{bed,bed.gz}"
   - mappability:
@@ -109,7 +109,7 @@ output:
   - blacklist:
       type: file
       description: |
-        Channel containing the genome blacklist file  
+        Channel containing the genome blacklist file
         Structure: [ val(meta), path(blacklist) ]
   - bed:
       type: file
@@ -121,7 +121,7 @@ output:
       description: |
         Channel containing digested gene_bed file
         Structure: [ val(meta), path(bed) ]
-  - bwa_index: 
+  - bwa_index:
       type: file
       description: |
         Channel containing the genome bwa index files

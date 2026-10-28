@@ -23,7 +23,7 @@ workflow PREPARE_GENOME {
     macs_gsize   // value or null
     ucscname     // string or null
     blacklist    // string/path or null
-    mappability  // string/path or null    
+    mappability  // string/path or null
     enzyme       // string or null
 
     main:
@@ -52,7 +52,7 @@ workflow PREPARE_GENOME {
             GUNZIP_GFF(ch_gff_in)
             ch_gff_in = GUNZIP_GFF.out.gunzip
         }
-        GFFREAD(ch_gff_in)   // add the fasta input if your module version requires it
+        GFFREAD(ch_gff_in, ch_fasta.map { it[1] })   // add the fasta input if your module version requires it
         ch_gtf = GFFREAD.out.gtf
     } else {
         ch_gtf = Channel.empty()
@@ -111,9 +111,10 @@ workflow PREPARE_GENOME {
         ch_mappability = Channel.value(file(mappability, checkIfExists: true))
     } else {
         GENMAP_INDEX(ch_fasta.map { it[1] })
-        GENMAP_MAPPABILITY(GENMAP_INDEX.out.index, read_length, 0) // kmer, errors
+        GENMAP_MAPPABILITY(GENMAP_INDEX.out.index, read_length) // kmer, errors
         ch_mappability = UCSC_WIGTOBIGWIG(
-            GENMAP_MAPPABILITY.out.bedgraph
+            GENMAP_MAPPABILITY.out.bedgraph,
+            SAMTOOLS_FAIDX.out.sizes.map { it[1] }
         )
     }
 
