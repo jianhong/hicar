@@ -253,6 +253,22 @@
                 }
             }
         },
+        "pipeline_controller": {
+            "title": "Pipeline controller",
+            "type": "object",
+            "description": "Control the steps of the pipeline",
+            "default": "",
+            "properties": {
+                "skip_cutadapt": {
+                    "type": "boolean",
+                    "description": "Skip the cutadapt or not."
+                },
+                "skip_fastqc": {
+                    "type": "boolean",
+                    "description": "Skip the fastqc or not."
+                }
+            }
+        },
         "generic_options": {
             "title": "Generic options",
             "type": "object",
@@ -368,6 +384,9 @@
         },
         {
             "$ref": "#/$defs/institutional_config_options"
+        },
+        {
+            "$ref": "#/$defs/pipeline_controller"
         },
         {
             "$ref": "#/$defs/generic_options"

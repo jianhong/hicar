@@ -35,9 +35,11 @@ workflow HICAR {
     //
     // MODULE: Run FastQC
     //
-    FASTQC(ch_samplesheet)
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
-    ch_samplesheet.view()
+    if(!params.skip_cutadapt){
+        FASTQC(ch_samplesheet)
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
+    }
+    //ch_samplesheet.view()
 
     //
     // SUBWORKFLOW: Prepare genome
