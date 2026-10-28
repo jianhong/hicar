@@ -30,6 +30,11 @@ include { getGenomeAttribute      } from './subworkflows/local/utils_nfcore_hica
 //   This is an example of how to use getGenomeAttribute() to fetch parameters
 //   from igenomes.config using `--genome`
 params.fasta = getGenomeAttribute('fasta')
+params.gtf   = getGenomeAttribute('gtf')
+params.gff   = getGenomeAttribute('gff')
+params.bwa_index = getGenomeAttribute('bwa_index')
+params.read_length = getGenomeAttribute('read_length')
+params.macs_gsize = getGenomeAttribute('macs_gsize')
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

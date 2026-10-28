@@ -1,0 +1,158 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "prepare_genome"
+description: Create reference genome files for HiCAR analysis, including fasta, gtf, bwa index, chromosome sizes, and digest genome files.
+keywords:
+  - genome
+  - reference
+  - index
+  - bwa
+  - chromosome sizes
+  - digest
+  - hicar
+## TODO nf-core: Add a list of the modules and/or subworkflows used in the subworkflow
+components:
+  - samtools/sort
+  - samtools/index
+  - gtf2bed
+  - genmap/index
+  - recutsite
+  - genome/chromsizes
+  - genmap/mappability
+  - cooler/digest
+  - genome/filter
+  - ucsc/wigtobigwig
+  - bedtools/sort
+## TODO nf-core: List all of the channels used as input with a description and their structure
+input:
+  - genome:
+      type: string
+      description: |
+        AWS iGenomes reference ID, as given to --genome (e.g. GRCh37, GRCh38, hg38, mm10). Must match a key in conf/igenomes.config, which the pipeline uses to fill in reference files such as fasta, gtf, and bwa index. In this subworkflow it is only used to look up the UCSC name if ucscname is not provided.
+        Structure: [ val(genome) ]
+  - fasta:
+      type: string
+      description: |
+        fasta file of the genome. May be gzipped
+        Structure: [ val(fasta) ]
+      pattern: "*.{fa,fasta,fa.gz,fasta.gz}"
+  - gtf:
+      type: string
+      description: |
+        gtf file of the genome. May be gzipped and takes priority over gff.
+        Structure: [ val(gtf) ]
+      pattern: "*.{gtf,gtf.gz}"
+  - gff:
+      type: string
+      description: |
+        gff file of the genome. May be gzipped and only occurs if gtf is not provided.
+        Structure: [ val(gff) ]
+      pattern: "*.{gff,gff3,gff.gz,gff3.gz}"
+  - bwa_index:
+      type: file
+      description: |
+        bwa index of the genome. Built from fasta if not provided
+        Structure: [ path(bwa_index) ]
+  - read_length:
+      type: integer
+      description: |
+        Length of the reads.
+        Structure: [ val(read_length) ]
+  - macs_gsize:
+      type: string
+      description: |
+        Effective genome size for MACS. Several precompiled parameters can be used (e.g., GRCh37 (human), GRCm37 (mouse)). Estimated with khmer if not provided. Visit DeepTools for full list of precompiled parameters: https://deeptools.readthedocs.io/en/develop/content/feature/effectiveGenomeSize.html
+        Structure: [ val(macs_gsize) ]
+  - ucscname:
+      type: string
+      description: |
+        UCSC assembly name (e.g. hg38, mm10), used for annotation in the downstream R scripts. Looked up from genome if not provided.
+        Structure: [ val(ucscname) ]
+  - blacklist:
+      type: string
+      description: |
+        Blacklist file. Contains blacklisted chromosome regions to be filtered out. May be gzipped. 
+        Structure: [ val(blacklist) ]
+      pattern: "*.{bed,bed.gz}"
+  - mappability:
+      type: file
+      description: |
+        Mappability file. Computed with genmap if not provided
+        Structure: [ path(mappability) ]
+      pattern: "*.bw"
+  - enzyme:
+      type: string
+      description: |
+        Enzyme name
+        Structure: [ val(enzyme) ]
+## TODO nf-core: List all of the channels used as output with a descriptions and their structure
+output:
+  - fasta:
+      type: file
+      description: |
+        Channel containing the genome fasta file
+        Structure: [ val(meta), path(fasta) ]
+  - gtf:
+      type: file
+      description: |
+        Channel containing the genome gtf file
+        Structure: [ val(meta), path(gtf) ]
+  - gene_bed:
+      type: file
+      description: |
+        Channel containing the gene_bed file
+        Structure: [ val(meta), path(bed) ]
+  - chrom_sizes:
+      type: file
+      description: |
+        Channel containing the genome chromosome sizes file
+        Structure: [ val(meta), path(chrom_sizes) ]
+    - blacklist:
+      type: file
+      description: |
+        Channel containing the genome blacklist file  
+        Structure: [ val(meta), path(blacklist) ]
+  - bed:
+      type: file
+      description: |
+        Channel containing the filtered gene_bed file
+        Structure: [ val(meta), path(bed) ]
+  - digest_genome:
+      type: file
+      description: |
+        Channel containing digested gene_bed file
+        Structure: [ val(meta), path(bed) ]
+  - bwa_index: 
+      type: file
+      description: |
+        Channel containing the genome bwa index files
+        Structure: [ val(meta), path(bwa_index) ]
+  - gsize:
+      type: string
+      description: |
+        Channel containing the genome size
+        Structure: [ val(meta), val(gsize) ]
+  - ucscname:
+      type: string
+      description: |
+        Channel containing the genome UCSC name
+        Structure: [ val(meta), val(ucscname) ]
+   - versions:
+      type: file
+      description: |
+        File containing software versions
+        Structure: [ path(versions.yml) ]
+      pattern: "versions.yml"
+  - mappability:
+      type: file
+      description: |
+        Channel containing the genome mappability file
+        Structure: [ val(meta), path(mappability) ]
+  - sites:
+      type: string
+      description: |
+        Channel containing the genome enzyme name
+        Structure: [ val(meta), val(enzyme) ]
+authors:
+  - "@jianhongou"
+maintainers:
+  - "@jianhongou"

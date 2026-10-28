@@ -16,6 +16,7 @@
             "replicate": {
                 "type": "integer",
                 "minimum": 1,
+                "pattern": "^\\d+$",
                 "errorMessage": "Replicate must be a positive integer",
                 "meta": ["replicate"]
             },
