@@ -84,7 +84,8 @@
                     "description": "Save reference genome index files for future runs.",
                     "fa_icon": "fas fa-save",
                     "hidden": true,
-                    "help_text": "If you are using a custom reference genome, the pipeline will generate the required BWA index files automatically. If you want to save these for future runs, set this parameter to `true`. The index files will be saved in the same directory as the FASTA file."
+                    "help_text": "If you are using a custom reference genome, the pipeline will generate the required BWA index files automatically. If you want to save these for future runs, set this parameter to `true`. The index files will be saved in the same directory as the FASTA file.",
+                    "default": true
                 },
                 "bwa_index": {
                     "type": "string",
@@ -135,12 +136,12 @@
                     "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a blacklist BED file available, you can download one from ENCODE. The blacklist file is used for quality control and will be used in the MultiQC report.",
                     "fa_icon": "far fa-file-code"
                 },
-                 "gene_bed": {
+                "gene_bed": {
                     "type": "string",
                     "format": "file-path",
                     "mimetype": "text/plain",
                     "fa_icon": "fas fa-file-medical-alt",
-                     "pattern": "^\\S+\\.bed(\\.gz)?$",
+                    "pattern": "^\\S+\\.bed(\\.gz)?$",
                     "description": "Path to gene bed file.",
                     "help_text": "Path to BED file containing gene intervals. This will be created from the GTF file if not specified."
                 },
@@ -160,7 +161,8 @@
                     "type": "boolean",
                     "description": "Publish mappability bigWig file to output directory.",
                     "help_text": "If you want to save the mappability bigWig file to the output directory, set this parameter to `true`. The mappability file will be used for quality control and will be used in the MultiQC report.",
-                    "fa_icon": "fas fa-file-upload"
+                    "fa_icon": "fas fa-file-upload",
+                    "default": true
                 }
             }
         },
@@ -199,8 +201,7 @@
                     "description": "Specifies that the read length has to be using.",
                     "fa_icon": "fas fa-dna",
                     "help_text": "Default is 150. It is used for mappability filter.",
-                    "hidden": false,
-                    "default": 150
+                    "hidden": false
                 }
             }
         },
@@ -249,6 +250,22 @@
                     "description": "Institutional config URL link.",
                     "hidden": true,
                     "fa_icon": "fas fa-users-cog"
+                }
+            }
+        },
+        "pipeline_controller": {
+            "title": "Pipeline controller",
+            "type": "object",
+            "description": "Control the steps of the pipeline",
+            "default": "",
+            "properties": {
+                "skip_cutadapt": {
+                    "type": "boolean",
+                    "description": "Skip the cutadapt or not."
+                },
+                "skip_fastqc": {
+                    "type": "boolean",
+                    "description": "Skip the fastqc or not."
                 }
             }
         },
@@ -367,6 +384,9 @@
         },
         {
             "$ref": "#/$defs/institutional_config_options"
+        },
+        {
+            "$ref": "#/$defs/pipeline_controller"
         },
         {
             "$ref": "#/$defs/generic_options"
