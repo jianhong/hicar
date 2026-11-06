@@ -190,7 +190,7 @@
                 },
                 "restriction_sites_cut_off": {
                     "type": "number",
-                    "description": "Specifies that the cutoff value used for mappability filter.",
+                    "description": "Specifies the cutoff value used for mappability filter.",
                     "fa_icon": "fas fa-ruler-horizontal",
                     "help_text": "Default is 0.5. It is the average over just covered bases.",
                     "hidden": false,
@@ -198,7 +198,7 @@
                 },
                 "read_length": {
                     "type": "integer",
-                    "description": "Specifies that the read length has to be using.",
+                    "description": "Specifies the read length to be used.",
                     "fa_icon": "fas fa-dna",
                     "help_text": "Default is 150. It is used for mappability filter.",
                     "hidden": false
@@ -256,16 +256,16 @@
         "pipeline_controller": {
             "title": "Pipeline controller",
             "type": "object",
-            "description": "Control the steps of the pipeline",
+            "description": "Manage which pipeline steps are run",
             "default": "",
             "properties": {
                 "skip_cutadapt": {
                     "type": "boolean",
-                    "description": "Skip the cutadapt or not."
+                    "description": "If true, skip cutadapt."
                 },
                 "skip_fastqc": {
                     "type": "boolean",
-                    "description": "Skip the fastqc or not."
+                    "description": "If true, skip fastqc."
                 }
             }
         },
@@ -274,7 +274,7 @@
             "type": "object",
             "fa_icon": "fas fa-file-import",
             "description": "Less common options for the pipeline, typically set in a config file.",
-            "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
+            "help_text": "These options are common to all nf-core pipelines and allow you to customize some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`.",
             "properties": {
                 "version": {
                     "type": "boolean",
@@ -293,7 +293,7 @@
                 },
                 "email_on_fail": {
                     "type": "string",
-                    "description": "Email address for completion summary, only when pipeline fails.",
+                    "description": "Email address for completion summary. Only sent when pipeline fails.",
                     "fa_icon": "fas fa-exclamation-triangle",
                     "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
                     "help_text": "An email address to send a summary email to when the pipeline is completed - ONLY sent if the pipeline does not exit successfully.",
@@ -339,7 +339,7 @@
                 },
                 "validate_params": {
                     "type": "boolean",
-                    "description": "Boolean whether to validate parameters against the schema at runtime",
+                    "description": "If true, validate parameters against the schema at runtime",
                     "default": true,
                     "fa_icon": "fas fa-check-square",
                     "hidden": true
@@ -347,7 +347,7 @@
                 "pipelines_testdata_base_path": {
                     "type": "string",
                     "fa_icon": "far fa-check-circle",
-                    "description": "Base URL or local path to location of pipeline test dataset files",
+                    "description": "Base URL or local path to pipeline test datasets",
                     "default": "https://raw.githubusercontent.com/nf-core/test-datasets/",
                     "hidden": true
                 },
