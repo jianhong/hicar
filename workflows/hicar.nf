@@ -14,6 +14,7 @@ include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pi
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_hicar_pipeline'
 
 //MODULE: Installed directly from nf-core/modules
+include { SAMTOOLS_MERGE              } from '../modules/nf-core/samtools/merge/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,6 +97,18 @@ workflow HICAR {
                 .map{[it[1][0], it[2].flatten()]}
                 .set{ mapped_bam }
     SAMTOOLS_MERGE(mapped_bam, [], [])
+
+    //
+    // SUBWORKFLOW: filter reads, output pair (like hic pair), raw (pair), and stats
+    //
+    PAIRTOOLS_PAIRE(
+        SAMTOOLS_MERGE.out.bam,
+        PREPARE_GENOME.out.chrom_sizes,
+        PREPARE_GENOME.out.digest_genome,
+        params.resample_pairs
+    )
+    ch_multiqc_files = ch_multiqc_files.mix(PAIRTOOLS_PAIRE.out.stat.collect().ifEmpty([]))
+
 
     //
     // Collate and save software versions
