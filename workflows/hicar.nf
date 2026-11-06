@@ -98,17 +98,6 @@ workflow HICAR {
                 .set{ mapped_bam }
     SAMTOOLS_MERGE(mapped_bam, [], [])
 
-    //
-    // SUBWORKFLOW: filter reads, output pair (like hic pair), raw (pair), and stats
-    //
-    PAIRTOOLS_PAIRE(
-        SAMTOOLS_MERGE.out.bam,
-        PREPARE_GENOME.out.chrom_sizes,
-        PREPARE_GENOME.out.digest_genome,
-        params.resample_pairs
-    )
-    ch_multiqc_files = ch_multiqc_files.mix(PAIRTOOLS_PAIRE.out.stat.collect().ifEmpty([]))
-
 
     //
     // Collate and save software versions
