@@ -26,14 +26,14 @@
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",
-                    "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
+                    "description": "The output directory where the results will be saved. You have to use absolute paths to store on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
                     "fa_icon": "fas fa-envelope",
-                    "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
+                    "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow finishes. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
                     "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
                 },
                 "multiqc_title": {
@@ -167,7 +167,7 @@
             }
         },
         "experiment_config_options": {
-            "title": "Experiment config options",
+            "title": "Experiment configuration options",
             "type": "object",
             "fa_icon": "fas fa-vial",
             "description": "Parameters used to describe the experiment. These should not be edited.",
@@ -175,14 +175,14 @@
             "properties": {
                 "enzyme": {
                     "type": "string",
-                    "description": "Specifies that the cutting position has to be using.",
+                    "description": "Restriction enzyme used to digest DNA.",
                     "fa_icon": "fas fa-vial",
                     "help_text": "Default CviQI digestion. Available enzymes are MboI, DpnII, BglII, HindIII, MseI, and CviQI.",
                     "default": "CviQI"
                 },
                 "restriction_sites": {
                     "type": "string",
-                    "description": "Specifies that the cutting sequence has to be using.",
+                    "description": "Recognizes the sequences at which DNA is cut by restriction enzyme.",
                     "fa_icon": "fas fa-cut",
                     "help_text": "It will be automatically assigned by the enzyme inputed.",
                     "hidden": true,
@@ -190,7 +190,7 @@
                 },
                 "restriction_sites_cut_off": {
                     "type": "number",
-                    "description": "Specifies the cutoff value used for mappability filter.",
+                    "description": "Minimum mappability score a restriction fragment needs to be kept.",
                     "fa_icon": "fas fa-ruler-horizontal",
                     "help_text": "Default is 0.5. It is the average over just covered bases.",
                     "hidden": false,
@@ -198,13 +198,14 @@
                 },
                 "read_length": {
                     "type": "integer",
-                    "description": "Specifies the read length to be used.",
+                    "description": "Length of sequencing reads in base pairs.",
                     "fa_icon": "fas fa-dna",
                     "help_text": "Default is 150. It is used for mappability filter.",
                     "hidden": false
                 }
             }
         },
+
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
