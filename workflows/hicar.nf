@@ -5,6 +5,8 @@
 */
 include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { PREPARE_GENOME         } from '../subworkflows/local/prepare_genome/main'
+include { CUTADAPT               } from '../modules/nf-core/cutadapt/main'
+include { BWA_MEM                } from '../modules/nf-core/bwa/mem/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -33,8 +35,11 @@ workflow HICAR {
     //
     // MODULE: Run FastQC
     //
-    FASTQC(ch_samplesheet)
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
+    if(!params.skip_fastqc){
+        FASTQC(ch_samplesheet)
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
+    }
+    //ch_samplesheet.view()
 
     //
     // SUBWORKFLOW: Prepare genome
@@ -52,7 +57,29 @@ workflow HICAR {
         params.mappability,
         params.enzyme
     )
-    ch_versions = ch_versions.mix(PREPARE_GENOME.out.versions)
+
+    //
+    // MODULE: trimming
+    //
+    if(!params.skip_cutadapt){
+        CUTADAPT(
+            ch_samplesheet
+        )
+        ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]}.ifEmpty([]))
+        reads4mapping = CUTADAPT.out.reads
+    }else{
+        reads4mapping = ch_samplesheet
+    }
+
+    //
+    // MODULE: mapping
+    //
+    BWA_MEM(
+        reads4mapping,
+        PREPARE_GENOME.out.bwa_index,
+        PREPARE_GENOME.out.fasta,
+        false
+    )
 
     //
     // Collate and save software versions

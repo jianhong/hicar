@@ -9,6 +9,7 @@ process GENMAP_MAPPABILITY {
 
     input:
     path index
+    val read_length
 
     output:
     path "*.wig"        , optional:true, emit: wig
@@ -25,6 +26,7 @@ process GENMAP_MAPPABILITY {
     genmap \\
         map \\
         $args \\
+        ${read_length} \\
         -I $index \\
         -O mappability
 

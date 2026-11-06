@@ -23,11 +23,10 @@ workflow PREPARE_GENOME {
     macs_gsize   // value or null
     ucscname     // string or null
     blacklist    // string/path or null
-    mappability  // string/path or null    
+    mappability  // string/path or null
     enzyme       // string or null
 
     main:
-    ch_versions = Channel.empty()
 
     // FASTA
     ch_fasta_in = Channel.value([ [id: 'fasta'], file(fasta, checkIfExists: true) ])
@@ -53,9 +52,8 @@ workflow PREPARE_GENOME {
             GUNZIP_GFF(ch_gff_in)
             ch_gff_in = GUNZIP_GFF.out.gunzip
         }
-        GFFREAD(ch_gff_in)   // add the fasta input if your module version requires it
+        GFFREAD(ch_gff_in, ch_fasta.map { it[1] })   // add the fasta input if your module version requires it
         ch_gtf = GFFREAD.out.gtf
-        ch_versions = ch_versions.mix(GFFREAD.out.versions)
     } else {
         ch_gtf = Channel.empty()
     }
@@ -66,12 +64,10 @@ workflow PREPARE_GENOME {
     } else {
         BWA_INDEX(ch_fasta)
         ch_bwa_index = BWA_INDEX.out.index
-        ch_versions = ch_versions.mix(BWA_INDEX.out.versions_bwa)
     }
 
     // Chromosome sizes and fai
     SAMTOOLS_FAIDX(ch_fasta.map { [it[0], it[1], []] }, true)
-    ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions_samtools)
 
 
     // Prepare ucsc annotation name
@@ -95,7 +91,6 @@ workflow PREPARE_GENOME {
     } else {
         KHMER_UNIQUEKMERS(ch_fasta.map { it[1] }, read_length)
         ch_gsize = KHMER_UNIQUEKMERS.out.kmers.map { it.text.trim() }
-        ch_versions = ch_versions.mix(KHMER_UNIQUEKMERS.out.versions)
     }
 
     // Blacklist
@@ -116,11 +111,11 @@ workflow PREPARE_GENOME {
         ch_mappability = Channel.value(file(mappability, checkIfExists: true))
     } else {
         GENMAP_INDEX(ch_fasta.map { it[1] })
-        GENMAP_MAPPABILITY(GENMAP_INDEX.out.index, read_length, 0) // kmer, errors
+        GENMAP_MAPPABILITY(GENMAP_INDEX.out.index, read_length) // kmer, errors
         ch_mappability = UCSC_WIGTOBIGWIG(
-            GENMAP_MAPPABILITY.out.bedgraph
+            GENMAP_MAPPABILITY.out.bedgraph,
+            SAMTOOLS_FAIDX.out.sizes.map { it[1] }
         )
-        ch_versions = ch_versions.mix(GENMAP_INDEX.out.versions, GENMAP_MAPPABILITY.out.versions, UCSC_WIGTOBIGWIG.out.versions)
     }
 
     /*
@@ -128,16 +123,14 @@ workflow PREPARE_GENOME {
      */
     digest_genome_bed = COOLER_DIGEST (
         ch_fasta.map { it[1] },
-        SAMTOOLS_FAIDX.out.sizes,
+        SAMTOOLS_FAIDX.out.sizes.map { it[1] },
         params.enzyme
     ).bed
-    ch_versions = ch_versions.mix(COOLER_DIGEST.out.versions_cooler)
 
     /*
      * get enzyme cut site and position for function maps:cut or enzyme_cut
      */
     RE_CUTSITE ( params.enzyme )
-    ch_versions = ch_versions.mix(RE_CUTSITE.out.versions)
 
     emit:
     fasta         = ch_fasta
@@ -150,5 +143,4 @@ workflow PREPARE_GENOME {
     mappability   = ch_mappability
     digest_genome = digest_genome_bed
     sites         = RE_CUTSITE.out.site
-    versions  = ch_versions
 }

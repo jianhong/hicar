@@ -39,7 +39,6 @@
                 "default": 1,
                 "meta": ["techniquereplicate"]
             }
-
         },
         "required": ["sample", "replicate", "fastq_1", "fastq_2"]
     }
