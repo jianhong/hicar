@@ -11,6 +11,9 @@ keywords:
 components:
   - samtools/sort
   - samtools/index
+  - samtools/stats
+  - samtools/idxstats
+  - samtools/flagstat
 ## TODO nf-core: List all of the channels used as input with a description and their structure
 input:
   - ch_bam:
@@ -21,30 +24,23 @@ input:
       pattern: "*.{bam/cram/sam}"
 ## TODO nf-core: List all of the channels used as output with a descriptions and their structure
 output:
-  - bam:
+  - stats:
       type: file
       description: |
-        Channel containing BAM files
+        Channel containing detailed statistics (read counts, mapping quality, insert sizes, error rates, etc).
         Structure: [ val(meta), path(bam) ]
-      pattern: "*.bam"
-  - bai:
+  - flagstat:
       type: file
       description: |
-        Channel containing indexed BAM (BAI) files
-        Structure: [ val(meta), path(bai) ]
-      pattern: "*.bai"
-  - csi:
+        Channel containing simple summary stats (total reads, mapped, properly paired, duplicates, etc).
+        Structure: [ val(meta), path(bam) ]
+  - idxstats:
       type: file
       description: |
-        Channel containing CSI files
-        Structure: [ val(meta), path(csi) ]
-      pattern: "*.csi"
-  - versions:
-      type: file
-      description: |
-        File containing software versions
-        Structure: [ path(versions.yml) ]
-      pattern: "versions.yml"
+        Channel reporting the number of reads aligned to each reference sequence
+        Structure: [ val(meta), path(bam) ]
+
+
 authors:
   - "@Anson-Zhu"
 maintainers:
