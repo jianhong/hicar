@@ -60,9 +60,44 @@
                         "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
                         "installed_by": ["modules"]
                     },
+                    "samtools/depth": {
+                        "branch": "master",
+                        "git_sha": "80eb474060aa4aa6d7b4b00e0dc785174f156a28",
+                        "installed_by": ["modules"]
+                    },
                     "samtools/faidx": {
                         "branch": "master",
                         "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/flagstat": {
+                        "branch": "master",
+                        "git_sha": "80eb474060aa4aa6d7b4b00e0dc785174f156a28",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/idxstats": {
+                        "branch": "master",
+                        "git_sha": "80eb474060aa4aa6d7b4b00e0dc785174f156a28",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/index": {
+                        "branch": "master",
+                        "git_sha": "80eb474060aa4aa6d7b4b00e0dc785174f156a28",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/merge": {
+                        "branch": "master",
+                        "git_sha": "80eb474060aa4aa6d7b4b00e0dc785174f156a28",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/sort": {
+                        "branch": "master",
+                        "git_sha": "80eb474060aa4aa6d7b4b00e0dc785174f156a28",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/stats": {
+                        "branch": "master",
+                        "git_sha": "80eb474060aa4aa6d7b4b00e0dc785174f156a28",
                         "installed_by": ["modules"]
                     },
                     "ucsc/wigtobigwig": {

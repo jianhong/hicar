@@ -7,6 +7,8 @@ include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { PREPARE_GENOME         } from '../subworkflows/local/prepare_genome/main'
 include { CUTADAPT               } from '../modules/nf-core/cutadapt/main'
 include { BWA_MEM                } from '../modules/nf-core/bwa/mem/main'
+include { SAMTOOLS_MERGE         } from '../modules/nf-core/samtools/merge/main'
+include { BAM_STAT               } from '../subworkflows/local/bam_stat/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -39,7 +41,6 @@ workflow HICAR {
         FASTQC(ch_samplesheet)
         ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.map{ _meta, file -> file })
     }
-    //ch_samplesheet.view()
 
     //
     // SUBWORKFLOW: Prepare genome
@@ -80,6 +81,34 @@ workflow HICAR {
         PREPARE_GENOME.out.fasta,
         false
     )
+
+    //
+    // Pool the technique replicates
+    //
+    BWA_MEM.out.bam
+                .map{
+                    meta, bam ->
+                        def new_meta = meta.clone()
+                        if (new_meta.replicate == null) {
+                            new_meta.replicate = 1
+                            meta.replicate = 1
+                        }
+                        new_meta.id = new_meta.id + "_REP" + new_meta.replicate
+                        [new_meta.id, meta, bam]
+                }
+                .groupTuple(by: [0])
+                .map{[it[1][0], it[2].flatten(), []]}
+                .set{ mapped_bam }
+    SAMTOOLS_MERGE(mapped_bam, PREPARE_GENOME.out.fa_fai.map { meta, fasta, fai -> [meta, fasta, fai, []] }, "")
+
+    //
+    // MODULE: mapping stats
+    //
+    BAM_STAT(SAMTOOLS_MERGE.out.bam, PREPARE_GENOME.out.fa_fai, "bai")
+    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.stats.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.flagstat.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.idxstats.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.depth.collect{it[1]}.ifEmpty([]))
 
     //
     // Collate and save software versions

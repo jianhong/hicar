@@ -91,6 +91,11 @@ output:
       description: |
         Channel containing the genome fasta file
         Structure: [ val(meta), path(fasta) ]
+  - fai:
+      type: file
+      description: |
+        Channel containing the genome fasta index file
+        Structure: [ val(meta), path(fai) ]
   - gtf:
       type: file
       description: |
