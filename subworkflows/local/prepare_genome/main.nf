@@ -134,6 +134,8 @@ workflow PREPARE_GENOME {
 
     emit:
     fasta         = ch_fasta
+    fai           = SAMTOOLS_FAIDX.out.fai
+    fa_fai        = ch_fasta.join(SAMTOOLS_FAIDX.out.fai)
     gtf           = ch_gtf
     bwa_index     = ch_bwa_index
     chrom_sizes   = SAMTOOLS_FAIDX.out.sizes
