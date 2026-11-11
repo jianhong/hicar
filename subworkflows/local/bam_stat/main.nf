@@ -14,7 +14,7 @@ workflow BAM_STAT {
 
     take:
     // TODO nf-core: edit input (take) channels
-    ch_bam // channel: [ val(meta), [ bam ] ]
+    bam // channel: [ val(meta), [ bam ] ]
 
     main:
     // TODO nf-core: substitute modules here for the modules of your subworkflow
