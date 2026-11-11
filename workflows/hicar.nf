@@ -14,7 +14,7 @@ include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pi
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_hicar_pipeline'
 
 //nf-core and local subworkflows
-include { BAM_STAT        } from '../subworkflows/local/bam_stats'
+include { BAM_STAT        } from '../subworkflows/local/bam_stat'
 
 //MODULE: Installed directly from nf-core/modules
 include { SAMTOOLS_MERGE              } from '../modules/nf-core/samtools/merge/main'
