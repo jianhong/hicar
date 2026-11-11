@@ -13,6 +13,9 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_hicar_pipeline'
 
+//nf-core and local subworkflows
+include { BAM_STAT        } from '../subworkflows/local/bam_stats'
+
 //MODULE: Installed directly from nf-core/modules
 include { SAMTOOLS_MERGE              } from '../modules/nf-core/samtools/merge/main'
 
@@ -98,6 +101,13 @@ workflow HICAR {
                 .set{ mapped_bam }
     SAMTOOLS_MERGE(mapped_bam, [], [])
 
+    //
+    // MODULE: mapping stats
+    //
+    BAM_STAT(SAMTOOLS_MERGE.out.bam)
+    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.stats.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.flagstat.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.idxstats.collect{it[1]}.ifEmpty([]))
 
     //
     // Collate and save software versions
