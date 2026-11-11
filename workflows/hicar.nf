@@ -99,7 +99,7 @@ workflow HICAR {
                 .groupTuple(by: [0])
                 .map{[it[1][0], it[2].flatten()]}
                 .set{ mapped_bam }
-    SAMTOOLS_MERGE(mapped_bam, [], [])
+    SAMTOOLS_MERGE( mapped_bam.map { meta, bams -> [ meta, bams, [] ] }, [ [:], [], [], [] ], '')
 
     //
     // MODULE: mapping stats
