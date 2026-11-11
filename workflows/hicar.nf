@@ -13,6 +13,12 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_hicar_pipeline'
 
+//nf-core and local subworkflows
+include { BAM_STAT        } from '../subworkflows/local/bam_stat'
+
+//MODULE: Installed directly from nf-core/modules
+include { SAMTOOLS_MERGE              } from '../modules/nf-core/samtools/merge/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -80,6 +86,28 @@ workflow HICAR {
         PREPARE_GENOME.out.fasta,
         false
     )
+
+     //
+    // Pool the technique replicates
+    //
+    BWA_MEM.out.bam
+                .map{
+                    meta, bam ->
+                        meta.id = meta.group + "_REP" + meta.replicate
+                        [meta.id, meta, bam]
+                }
+                .groupTuple(by: [0])
+                .map{[it[1][0], it[2].flatten()]}
+                .set{ mapped_bam }
+    SAMTOOLS_MERGE( mapped_bam.map { meta, bams -> [ meta, bams, [] ] }, [ [:], [], [], [] ], '')
+
+    //
+    // MODULE: mapping stats
+    //
+    BAM_STAT(SAMTOOLS_MERGE.out.bam)
+    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.stats.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.flagstat.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.idxstats.collect{it[1]}.ifEmpty([]))
 
     //
     // Collate and save software versions
