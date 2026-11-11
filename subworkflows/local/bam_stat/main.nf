@@ -4,11 +4,11 @@
 //               https://nf-co.re/join
 // TODO nf-core: A subworkflow SHOULD import at least two modules
 
-include { SAMTOOLS_SORT                } from '../../modules/nf-core/samtools/sort/main'
-include { SAMTOOLS_INDEX               } from '../../modules/nf-core/samtools/index/main'
-include { SAMTOOLS_STATS               } from '../../modules/nf-core/samtools/stats/main'
-include { SAMTOOLS_IDXSTATS            } from '../../modules/nf-core/samtools/idxstats/main'
-include { SAMTOOLS_FLAGSTAT            } from '../../modules/nf-core/samtools/flagstat/main'
+include { SAMTOOLS_SORT                } from '../../../modules/nf-core/samtools/sort/main'
+include { SAMTOOLS_INDEX               } from '../../../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_STATS               } from '../../../modules/nf-core/samtools/stats/main'
+include { SAMTOOLS_IDXSTATS            } from '../../../modules/nf-core/samtools/idxstats/main'
+include { SAMTOOLS_FLAGSTAT            } from '../../../modules/nf-core/samtools/flagstat/main'
 
 workflow BAM_STAT {
 
