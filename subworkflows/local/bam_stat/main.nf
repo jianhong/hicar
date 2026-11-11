@@ -21,7 +21,7 @@ workflow BAM_STAT {
     SAMTOOLS_SORT(bam)
     SAMTOOLS_INDEX(SAMTOOLS_SORT.out.bam)
     ch_bam_bai = SAMTOOLS_SORT.out.bam.join(SAMTOOLS_INDEX.out.index, by: [0])
-    SAMTOOLS_STATS(ch_bam_bai, [])
+    SAMTOOLS_STATS(ch_bam_bai, [[:], [], []])
     SAMTOOLS_FLAGSTAT(ch_bam_bai)
     SAMTOOLS_IDXSTATS(ch_bam_bai)
 
