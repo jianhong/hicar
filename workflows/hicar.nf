@@ -13,6 +13,12 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_hicar_pipeline'
 
+//nf-core and local subworkflows
+include { BAM_STAT        } from '../subworkflows/local/bam_stat'
+
+//MODULE: Installed directly from nf-core/modules
+include { SAMTOOLS_MERGE              } from '../modules/nf-core/samtools/merge/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -80,6 +86,28 @@ workflow HICAR {
         PREPARE_GENOME.out.fasta,
         false
     )
+
+    //
+    // Pool the technique replicates
+    //
+    BWA_MEM.out.bam
+                .map{
+                    meta, bam ->
+                        def new_meta = meta.clone()
+                        if (new_meta.replicate == null) {
+                            new_meta.replicate = 1
+                            meta.replicate = 1
+                        }
+                        new_meta.id = new_meta.id + "_REP" + new_meta.replicate
+                        [new_meta.id, meta, bam]
+                }
+                .groupTuple(by: [0])
+                .map{[it[1][0], it[2], []]}
+                .set{ mapped_bam }
+
+    SAMTOOLS_MERGE( mapped_bam, PREPARE_GENOME.out.fa_fai.map {meta, fa, fai -> [meta, fa, fai, []]}, '')
+
+    
 
     //
     // Collate and save software versions
