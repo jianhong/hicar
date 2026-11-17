@@ -136,6 +136,8 @@ workflow PREPARE_GENOME {
     fasta         = ch_fasta
     gtf           = ch_gtf
     bwa_index     = ch_bwa_index
+    fai           = SAMTOOLS_FAIDX.out.fai
+    fa_fai        = ch_fasta.join(SAMTOOLS_FAIDX.out.fai)
     chrom_sizes   = SAMTOOLS_FAIDX.out.sizes
     gsize         = ch_gsize
     ucscname      = ch_ucscname

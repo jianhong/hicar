@@ -93,13 +93,19 @@ workflow HICAR {
     BWA_MEM.out.bam
                 .map{
                     meta, bam ->
-                        meta.id = meta.group + "_REP" + meta.replicate
-                        [meta.id, meta, bam]
+                        def new_meta = meta.clone()
+                        if (new_meta.replicate == null) {
+                            new_meta.replicate = 1
+                            meta.replicate = 1
+                        }
+                        new_meta.id = new_meta.id + "_REP" + new_meta.replicate
+                        [new_meta.id, meta, bam]
                 }
                 .groupTuple(by: [0])
-                .map{[it[1][0], it[2].flatten()]}
+                .map{[it[1][0], it[2], []]}
                 .set{ mapped_bam }
-    SAMTOOLS_MERGE( mapped_bam.map { meta, bams -> [ meta, bams, [] ] }, [ [:], [], [], [] ], '')
+
+    SAMTOOLS_MERGE( mapped_bam, PREPARE_GENOME.out.fa_fai.map {meta, fa, fai -> [meta, fa, fai, []]}, '')
 
     
 
