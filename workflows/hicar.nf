@@ -87,7 +87,7 @@ workflow HICAR {
         false
     )
 
-     //
+    //
     // Pool the technique replicates
     //
     BWA_MEM.out.bam
@@ -101,13 +101,7 @@ workflow HICAR {
                 .set{ mapped_bam }
     SAMTOOLS_MERGE( mapped_bam.map { meta, bams -> [ meta, bams, [] ] }, [ [:], [], [], [] ], '')
 
-    //
-    // MODULE: mapping stats
-    //
-    BAM_STAT(SAMTOOLS_MERGE.out.bam)
-    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.stats.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.flagstat.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.idxstats.collect{it[1]}.ifEmpty([]))
+    
 
     //
     // Collate and save software versions
