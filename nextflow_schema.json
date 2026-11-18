@@ -202,6 +202,25 @@
                     "fa_icon": "fas fa-dna",
                     "help_text": "Default is 150. It is used for mappability filter.",
                     "hidden": false
+                },
+                "cutadapt_5end": {
+                    "type": "string",
+                    "default": "^TAC",
+                    "fa_icon": "fas fa-cut",
+                    "description": "trim 5' end with the string if not skip_cutadapt"
+                },
+                "cutadapt_action": {
+                    "type": "string",
+                    "default": "none",
+                    "fa_icon": "fas fa-cut",
+                    "description": "The action when an adapter is found if not skip_cutadapt",
+                    "enum": ["trim", "retain", "none", "mask"]
+                },
+                "cutadapt_error_tolerance": {
+                    "type": "number",
+                    "default": 0.15,
+                    "fa_icon": "fas fa-cut",
+                    "description": "Error tolerance for adaptor filter if not skip_cutadapt"
                 }
             }
         },
