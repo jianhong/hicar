@@ -112,10 +112,17 @@ workflow PIPELINE_INITIALISATION {
         .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
         .map {
             meta, fastq_1, fastq_2 ->
+                if (meta.replicate == null) {
+                    meta.replicate = 1
+                }
+                if (meta.techniquereplicate == null) {
+                    meta.techniquereplicate = 1
+                }
+                meta.uniq_id = meta.id+'_R'+meta.replicate+'_r'+meta.techniquereplicate
                 if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
+                    return [ meta.uniq_id, meta + [ single_end:true ], [ fastq_1 ] ]
                 } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
+                    return [ meta.uniq_id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
                 }
         }
         .groupTuple()
