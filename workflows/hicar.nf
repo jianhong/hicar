@@ -88,23 +88,31 @@ workflow HICAR {
     BWA_MEM.out.bam
                 .map{
                     meta, bam ->
+                        meta.techniquereplicate = null
                         def new_meta = meta.clone()
-                        if (new_meta.replicate == null) {
-                            new_meta.replicate = 1
-                            meta.replicate = 1
-                        }
-                        new_meta.id = new_meta.id + "_REP" + new_meta.replicate
+                        new_meta.id = meta.id + "_REP" + meta.replicate
                         [new_meta.id, meta, bam]
                 }
                 .groupTuple(by: [0])
-                .map{[it[1][0], it[2].flatten(), []]}
+                .map{ group_id, metas, bams ->
+                    // group_id: sample_id, metas: [meta1, meta2, ...], bams: [bam1, bam2, ...]
+                    // drop group_id, and return only meta[id, replicate, uniq_id, single_end]
+                    def new_meta = metas[0].clone()
+                    new_meta.uniq_id = new_meta.id + "_REP" + new_meta.replicate
+                    [new_meta, bams, []]
+                }
                 .set{ mapped_bam }
-    SAMTOOLS_MERGE(mapped_bam, PREPARE_GENOME.out.fa_fai.map { meta, fasta, fai -> [meta, fasta, fai, []] }, "")
+    // use first() to convert channel of list to channel of single value, since PREPARE_GENOME.out.fa_fai is a channel of list
+    // [[meta, fasta, fai], [meta, fasta, fai], ...] -> [meta, fasta, fai]
+    // This will push the different length of input channels to the same length, so that SAMTOOLS_MERGE can run properly
+    SAMTOOLS_MERGE(mapped_bam, PREPARE_GENOME.out.fa_fai.map { meta, fasta, fai -> [meta, fasta, fai, []] }.first(), "")
 
     //
     // MODULE: mapping stats
     //
-    BAM_STAT(SAMTOOLS_MERGE.out.bam, PREPARE_GENOME.out.fa_fai, "bai")
+    // use first() to convert channel of list to channel of single value, since PREPARE_GENOME.out.fa_fai is a channel of list
+    // Same as above, this will push the different length of input channels to the same length, so that BAM_STAT can run properly
+    BAM_STAT(SAMTOOLS_MERGE.out.bam, PREPARE_GENOME.out.fa_fai.first(), "bai")
     ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.stats.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.flagstat.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(BAM_STAT.out.idxstats.collect{it[1]}.ifEmpty([]))
