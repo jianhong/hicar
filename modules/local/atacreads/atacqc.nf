@@ -14,7 +14,7 @@ process ATACQC {
 
     output:
     path "*.csv"                   , emit: stats
-    path "versions.yml"            , emit: versions
+    path "versions.yml"            , emit: versions, topic: versions
 
     script:
     def args = task.ext.args ?: ''

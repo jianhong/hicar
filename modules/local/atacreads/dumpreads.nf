@@ -15,7 +15,7 @@ process DUMP_READS {
     output:
     tuple val(meta), path("*.${short_bed_postfix}")   , emit: peak
     tuple val(meta), stdout                           , emit: counts
-    path "versions.yml"                               , emit: versions
+    path "versions.yml"                               , emit: versions, topic: versions
 
     script:
     def software = "awk"

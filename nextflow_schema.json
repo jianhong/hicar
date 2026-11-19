@@ -205,7 +205,50 @@
                 }
             }
         },
-
+        "atac_peak_options": {
+            "title": "ATAC peak options",
+            "type": "object",
+            "fa_icon": "fas fa-mountain",
+            "description": "Options for calling ATAC peaks from the R2 reads.",
+            "properties": {
+                "method": {
+                    "type": "string",
+                    "default": "HiCAR",
+                    "description": "Method used for the experiment.",
+                    "help_text": "It can be HiCAR, HiChIP, ChIA-PET, PLAC-Seq. If it is not HiCAR, user may want to define the anchor peaks. Otherwise, the anchor peaks will be called by R2 reads.",
+                    "fa_icon": "fas fa-atom"
+                },
+                "anchor_peaks": {
+                    "type": "string",
+                    "format": "file-path",
+                    "pattern": "^\\S+\\.(narrowPeak|broadPeak)$",
+                    "description": "Path to user-defined anchor peaks.",
+                    "help_text": "If provided, these peaks are used instead of calling ATAC peaks from R2 reads with MACS2. Can be a narrowPeak or broadPeak file.",
+                    "fa_icon": "fab fa-think-peaks"
+                },
+                "shiftsize": {
+                    "type": "integer",
+                    "default": -75,
+                    "description": "shift size for MACS2",
+                    "help_text": "How reads will be shift to increase the peak/noise ratios. See help from [MACS2 documentation](https://github.com/macs3-project/MACS/blob/master/docs/callpeak.md)",
+                    "fa_icon": "fas fa-arrows-alt-h"
+                },
+                "smooth_window": {
+                    "type": "integer",
+                    "default": 150,
+                    "description": "extsize for MACS2",
+                    "help_text": "How reads will be extend in 5'->3' direction to increase the fragment size. See help from [MACS2 documentation](https://github.com/macs3-project/MACS/blob/master/docs/callpeak.md)",
+                    "fa_icon": "fas fa-compress"
+                },
+                "qval_thresh": {
+                    "type": "number",
+                    "default": 0.01,
+                    "description": "cutoff qvalue",
+                    "help_text": "The minimum FDR cutoff to call significant peak for R2 reads. See help from [MACS2 documentation](https://github.com/macs3-project/MACS/blob/master/docs/callpeak.md)",
+                    "fa_icon": "fas fa-filter"
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -382,6 +425,9 @@
         },
         {
             "$ref": "#/$defs/experiment_config_options"
+        },
+        {
+            "$ref": "#/$defs/atac_peak_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"

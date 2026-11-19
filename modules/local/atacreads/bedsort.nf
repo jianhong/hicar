@@ -14,7 +14,7 @@ process BEDFILES_SORT {
 
     output:
     tuple val(meta), path("*.${extension}"), emit: sorted
-    path  "versions.yml"                   , emit: versions
+    path  "versions.yml"                   , emit: versions, topic: versions
 
     script:
     def prefix   = task.ext.prefix ?: "${meta.id}"

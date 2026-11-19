@@ -7,6 +7,8 @@ include { FASTQC                 } from '../modules/nf-core/fastqc/main'
 include { PREPARE_GENOME         } from '../subworkflows/local/prepare_genome/main'
 include { CUTADAPT               } from '../modules/nf-core/cutadapt/main'
 include { BWA_MEM                } from '../modules/nf-core/bwa/mem/main'
+include { PAIRTOOLS_PAIRE        } from '../subworkflows/local/pairtools_paire/main'
+include { ATAC_PEAK              } from '../subworkflows/local/atac_peak/main'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -80,6 +82,31 @@ workflow HICAR {
         PREPARE_GENOME.out.fasta,
         false
     )
+
+    //
+    // SUBWORKFLOW: mapped reads -> valid pairs
+    // NOTE: switch BWA_MEM.out.bam to SAMTOOLS_MERGE.out.bam once the samtools/bam_stat PR is merged
+    //
+    def ch_chromsizes = PREPARE_GENOME.out.chrom_sizes.map { _meta, sizes -> sizes }
+    PAIRTOOLS_PAIRE(
+        BWA_MEM.out.bam,
+        ch_chromsizes,
+        PREPARE_GENOME.out.digest_genome
+    )
+    ch_multiqc_files = ch_multiqc_files.mix(PAIRTOOLS_PAIRE.out.stat.map { _meta, stat -> stat })
+
+    //
+    // SUBWORKFLOW: call ATAC peaks from the R2 ends
+    //
+    ATAC_PEAK(
+        PAIRTOOLS_PAIRE.out.validpair,
+        ch_chromsizes,
+        PREPARE_GENOME.out.gsize,
+        PREPARE_GENOME.out.gtf.map { _meta, gtf -> gtf },
+        params.method,
+        params.anchor_peaks
+    )
+    ch_multiqc_files = ch_multiqc_files.mix(ATAC_PEAK.out.stats)
 
     //
     // Collate and save software versions

@@ -12,7 +12,7 @@ process MERGE_PEAK {
 
     output:
     path "merged_peak.bed"    , emit: peak
-    path "versions.yml"       , emit: versions
+    path "versions.yml"       , emit: versions, topic: versions
 
     script:
     def args = task.ext.args ?: ''

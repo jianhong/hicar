@@ -8,7 +8,7 @@ process GET_SCALE {
 
     output:
     tuple val(meta), val(scale)  , emit: scale
-    path "versions.yml"          , emit: versions
+    path "versions.yml"          , emit: versions, topic: versions
 
     script:
     scale = min_counts/counts.toInteger()

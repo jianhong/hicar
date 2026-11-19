@@ -15,7 +15,7 @@ process SHIFT_READS {
     output:
     tuple val(meta), path("*.bed.gz"), emit: bed
     tuple val(meta), stdout          , emit: counts
-    path "versions.yml"              , emit: versions
+    path "versions.yml"              , emit: versions, topic: versions
 
     script:
     def prefix   = task.ext.prefix ? "${meta.id}${task.ext.prefix}" : "${meta.id}"
